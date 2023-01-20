@@ -18,4 +18,15 @@ export const exampleRouter = createTRPCRouter({
   getSecretMessage: protectedProcedure.query(() => {
     return "you can now see this secret message!";
   }),
+
+  createOne: publicProcedure.mutation(({ ctx }) => {
+    return ctx.prisma.example.create({
+      data: {},
+      select: {
+        id: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+  }),
 });

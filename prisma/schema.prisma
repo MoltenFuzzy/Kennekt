@@ -20,7 +20,7 @@ model Example {
     updatedAt DateTime @updatedAt
 }
 
-// Necessary for Next auth
+// Necessary for Next auth(providers)
 model Account {
     id                String  @id @default(cuid())
     userId            String
@@ -49,12 +49,56 @@ model Session {
 
 model User {
     id            String    @id @default(cuid())
+    username      String?   @unique
     name          String?
     email         String?   @unique
     emailVerified DateTime?
     image         String?
+    role          Role      @default(USER)
     accounts      Account[]
+    posts         Post[]
+    comments      Comment[]
     sessions      Session[]
+    // many to many
+    followedBy    Follows[] @relation("following")
+    following     Follows[] @relation("follower")
+}
+
+model Follows {
+    follower    User   @relation("follower", fields: [followerId], references: [id])
+    followerId  String
+    following   User   @relation("following", fields: [followingId], references: [id])
+    followingId String
+
+    @@id([followerId, followingId])
+}
+
+model Post {
+    id        String    @id @default(cuid())
+    createdAt DateTime  @default(now())
+    updatedAt DateTime  @updatedAt
+    published Boolean   @default(false)
+    title     String    @db.VarChar(255)
+    post      String    @db.Text
+    authorId  String
+    author    User?     @relation(fields: [authorId], references: [id])
+    Comment   Comment[]
+}
+
+// TODO: https://stackoverflow.com/questions/70095411/i-want-to-use-prisma-to-store-nested-comments-like-on-reddit-how-can-i-retrie
+model Comment {
+    id        String    @id @default(cuid())
+    comment   String    @db.VarChar(255)
+    createdAt DateTime  @default(now())
+    updatedAt DateTime  @updatedAt
+    published Boolean   @default(false)
+    authorId  String
+    author    User?     @relation(fields: [authorId], references: [id])
+    postId    String
+    Post      Post      @relation(fields: [postId], references: [id])
+    Children  Comment[] @relation("Comment_Children")
+    parent_id String?
+    parent    Comment?  @relation("Comment_Children", fields: [parent_id], references: [id])
 }
 
 model VerificationToken {
@@ -63,4 +107,9 @@ model VerificationToken {
     expires    DateTime
 
     @@unique([identifier, token])
+}
+
+enum Role {
+    USER
+    ADMIN
 }
