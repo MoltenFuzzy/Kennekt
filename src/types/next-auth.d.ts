@@ -22,16 +22,7 @@ declare module "next-auth" {
     } & DefaultSession["user"];
   }
 
-  // interface Account {
-  //   id: string;
-  // }
-
-  // interface User {
-  //   id: string;
-  //   username: string;
-  //   name?: string;
-  //   email?: string;
-  //   emailedVerified?: Date;
-  //   image?: string;
-  // }
+  interface User {
+    username: string;
+  }
 }

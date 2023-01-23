@@ -61,7 +61,7 @@ const Login: NextPage = () => {
               <input
                 type="text"
                 className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                placeholder="JDoe"
+                placeholder="Username"
                 {...register("username", { required: true })}
               />
             </div>
@@ -98,6 +98,7 @@ const Login: NextPage = () => {
 export default Login;
 
 const AuthShowcase: React.FC = () => {
+  const router = useRouter();
   const { data: sessionData } = useSession();
 
   const { data: secretMessage } = api.example.getSecretMessage.useQuery(
@@ -105,27 +106,23 @@ const AuthShowcase: React.FC = () => {
     { enabled: sessionData?.user !== undefined }
   );
 
-  const testUser = api.user.getAccounts.useQuery();
+  const testUser = api.user.getMyAccounts.useQuery();
 
   useEffect(() => {
     console.log(testUser.data);
     console.log(sessionData?.user);
-  });
+    void router.push("home");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sessionData]);
 
   return (
     <>
-      <p className="text-center text-2xl text-white">
-        {sessionData && <span>Logged in as {sessionData.user?.name}</span>}
-        {secretMessage && <span> - {secretMessage}</span>}
-      </p>
       {!sessionData && (
         <>
           <button
-            onClick={() =>
-              void signIn("google", {
-                callbackUrl: "http://localhost:3000/home",
-              })
-            }
+            onClick={() => {
+              popupCenter("/google-signin", "Google Sign In");
+            }}
             type="button"
             className="dark:focus:ring-[#4285F4]/55 mr-2 mb-4  inline-flex w-full items-center justify-center rounded-lg bg-[#4285F4] px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-[#4285F4]/90 focus:outline-none focus:ring-4 focus:ring-[#4285F4]/50"
           >
@@ -194,6 +191,34 @@ const AuthShowcase: React.FC = () => {
     </>
   );
 };
+
+function popupCenter(url: string, title: string) {
+  const dualScreenLeft = window.screenLeft ?? window.screenX;
+  const dualScreenTop = window.screenTop ?? window.screenY;
+
+  const width =
+    window.innerWidth ?? document.documentElement.clientWidth ?? screen.width;
+
+  const height =
+    window.innerHeight ??
+    document.documentElement.clientHeight ??
+    screen.height;
+
+  const systemZoom = width / window.screen.availWidth;
+
+  const left = (width - 500) / 2 / systemZoom + dualScreenLeft;
+  const top = (height - 550) / 2 / systemZoom + dualScreenTop;
+
+  const newWindow = window.open(
+    url,
+    title,
+    `width=${500 / systemZoom},height=${
+      550 / systemZoom
+    },top=${top},left=${left}`
+  );
+
+  newWindow?.focus();
+}
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   const session = await unstable_getServerSession(

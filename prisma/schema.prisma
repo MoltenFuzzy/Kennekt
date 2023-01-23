@@ -62,6 +62,8 @@ model User {
     // many to many
     followedBy    Follows[] @relation("following")
     following     Follows[] @relation("follower")
+    likedPosts    Post[]    @relation("likedBy")
+    likedComments Comment[] @relation("likedBy")
 }
 
 model Follows {
@@ -74,31 +76,37 @@ model Follows {
 }
 
 model Post {
-    id        String    @id @default(cuid())
-    createdAt DateTime  @default(now())
-    updatedAt DateTime  @updatedAt
-    published Boolean   @default(false)
-    title     String    @db.VarChar(255)
-    post      String    @db.Text
-    authorId  String
-    author    User?     @relation(fields: [authorId], references: [id])
-    Comment   Comment[]
+    id            String    @id @default(cuid())
+    createdAt     DateTime  @default(now())
+    updatedAt     DateTime  @updatedAt
+    published     Boolean   @default(false)
+    title         String    @db.VarChar(255)
+    body          String    @db.Text
+    likesCount    Int       @default(0)
+    likedBy       User[]    @relation("likedBy")
+    authorId      String
+    author        User      @relation(fields: [authorId], references: [id])
+    commentsCount Int       @default(0)
+    comments      Comment[]
 }
 
 // TODO: https://stackoverflow.com/questions/70095411/i-want-to-use-prisma-to-store-nested-comments-like-on-reddit-how-can-i-retrie
 model Comment {
-    id        String    @id @default(cuid())
-    comment   String    @db.VarChar(255)
-    createdAt DateTime  @default(now())
-    updatedAt DateTime  @updatedAt
-    published Boolean   @default(false)
-    authorId  String
-    author    User?     @relation(fields: [authorId], references: [id])
-    postId    String
-    Post      Post      @relation(fields: [postId], references: [id])
-    Children  Comment[] @relation("Comment_Children")
-    parent_id String?
-    parent    Comment?  @relation("Comment_Children", fields: [parent_id], references: [id])
+    id              String    @id @default(cuid())
+    comment         String    @db.VarChar(255)
+    createdAt       DateTime  @default(now())
+    updatedAt       DateTime  @updatedAt
+    published       Boolean   @default(false)
+    authorId        String
+    author          User      @relation(fields: [authorId], references: [id])
+    postId          String
+    post            Post      @relation(fields: [postId], references: [id])
+    likesCount      Int       @default(0)
+    likedBy         User[]    @relation("likedBy")
+    repliesCount    Int       @default(0)
+    replies         Comment[] @relation("replies")
+    parentCommentId String?
+    parentComment   Comment?  @relation("replies", fields: [parentCommentId], references: [id])
 }
 
 model VerificationToken {
