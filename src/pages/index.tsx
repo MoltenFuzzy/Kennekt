@@ -1,27 +1,15 @@
-import type { GetServerSidePropsContext } from "next";
+import type {
+  GetServerSidePropsContext,
+  NextApiRequest,
+  NextApiResponse,
+} from "next";
 import { type NextPage } from "next";
 import Head from "next/head";
-import Link from "next/link";
-import { signIn, signOut, useSession } from "next-auth/react";
-
-import { api } from "../utils/api";
-import Image from "next/image";
-import logo from "../../images/logo.png";
 import NavBar from "../components/NavBar";
-import { useEffect } from "react";
 import { unstable_getServerSession } from "next-auth";
 import { authOptions } from "./api/auth/[...nextauth]";
 
 const Landing: NextPage = () => {
-  const utils = api.useContext();
-  const hello = api.example.hello.useQuery({ text: "from tRPC" });
-  const examples = api.example.getAll.useQuery();
-  const test = api.example.createOne.useMutation({
-    onSuccess() {
-      void utils.example.getAll.invalidate();
-    },
-  });
-
   return (
     <>
       <Head>
@@ -42,7 +30,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
   const session = await unstable_getServerSession(
     context.req,
     context.res,
-    authOptions
+    authOptions(context.req as NextApiRequest, context.res as NextApiResponse)
   );
 
   if (session) {

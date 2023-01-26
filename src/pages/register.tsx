@@ -1,4 +1,9 @@
-import { type GetServerSidePropsContext, type NextPage } from "next";
+import {
+  NextApiRequest,
+  type GetServerSidePropsContext,
+  type NextPage,
+  NextApiResponse,
+} from "next";
 import Link from "next/link";
 import { signIn, signOut, useSession } from "next-auth/react";
 import Image from "next/image";
@@ -7,30 +12,69 @@ import { api } from "../utils/api";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { unstable_getServerSession } from "next-auth";
 import { authOptions } from "./api/auth/[...nextauth]";
+import { useEffect } from "react";
 
-type UserSubmitForm = {
+type UserRegisterForm = {
   firstName: string;
   lastName: string;
   username: string;
   email: string;
   password: string;
   confirmPassword: string;
-  birthday: Date;
-  gender: string;
   acceptTerms: boolean;
 };
 
 const Register: NextPage = () => {
   const {
     register,
+    setError,
     handleSubmit,
     formState: { errors },
-  } = useForm<UserSubmitForm>();
+  } = useForm<UserRegisterForm>();
 
-  const onSubmit = (data: UserSubmitForm) => {
-    console.log(data);
-    alert(JSON.stringify(data));
+  const createUser = api.user.createOne.useMutation();
+
+  const onSubmit = ({
+    username,
+    firstName,
+    lastName,
+    password,
+    confirmPassword,
+    email,
+  }: UserRegisterForm) => {
+    if (password !== confirmPassword) {
+      return setError(
+        "confirmPassword",
+        { type: "focus", message: "Passwords do not match!" },
+        { shouldFocus: true }
+      );
+    }
+    createUser.mutate({
+      username,
+      firstName,
+      lastName,
+      password,
+      email,
+    });
   };
+
+  useEffect(() => {
+    console.log();
+    console.log(createUser.error?.message);
+    if (createUser.error?.message === "Email already exists") {
+      return setError(
+        "email",
+        { type: "focus", message: createUser.error.message },
+        { shouldFocus: true }
+      );
+    } else if (createUser.error?.message === "Username already exists") {
+      return setError(
+        "username",
+        { type: "focus", message: createUser.error.message },
+        { shouldFocus: true }
+      );
+    }
+  }, [createUser.error, setError]);
 
   return (
     <div className="min-h-screen bg-[radial-gradient(ellipse_at_bottom_right,_var(--tw-gradient-stops))] from-slate-900 via-slate-800 to-zinc-900">
@@ -96,6 +140,7 @@ const Register: NextPage = () => {
               placeholder="JDoe"
               {...register("username", { required: true })}
             />
+            {errors.username && <p>{errors.username.message}</p>}
           </div>
           <div className="mb-6">
             <label
@@ -110,6 +155,7 @@ const Register: NextPage = () => {
               placeholder="john.doe@company.com"
               {...register("email", { required: true })}
             />
+            {errors.email && <p>{errors.email.message}</p>}
           </div>
           <div className="mb-6">
             <label
@@ -140,8 +186,9 @@ const Register: NextPage = () => {
               placeholder="•••••••••"
               {...register("confirmPassword", { required: true })}
             />
+            {errors.confirmPassword && <p>{errors.confirmPassword.message}</p>}
           </div>
-          <div className="mb-6 grid gap-6 md:grid-cols-2">
+          {/* <div className="mb-6 grid gap-6 md:grid-cols-2">
             <div>
               <label
                 htmlFor="birthday"
@@ -178,7 +225,7 @@ const Register: NextPage = () => {
                 <option value="OTHER">Other</option>
               </select>
             </div>
-          </div>
+          </div> */}
           <div className="mb-6 flex items-start">
             <div className="flex h-5 items-center">
               <input
@@ -193,7 +240,7 @@ const Register: NextPage = () => {
               htmlFor="remember"
               className="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300"
             >
-              I agree with the
+              I agree with the &nbsp;
               <a
                 href="#"
                 className="text-blue-600 hover:underline dark:text-blue-500"
@@ -219,7 +266,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
   const session = await unstable_getServerSession(
     context.req,
     context.res,
-    authOptions
+    authOptions(context.req as NextApiRequest, context.res as NextApiResponse)
   );
 
   if (session) {

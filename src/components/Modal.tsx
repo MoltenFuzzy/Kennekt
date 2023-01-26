@@ -14,7 +14,6 @@ type UsernameForm = {
 };
 
 const Modal: React.FC<ModalProps> = ({ title, children }) => {
-  const { data: sessionData } = useSession();
   const [isOpen, setIsOpen] = useState(true);
   const setUsername = api.user.setUsername.useMutation({
     onSuccess() {

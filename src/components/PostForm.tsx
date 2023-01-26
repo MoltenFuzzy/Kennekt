@@ -23,7 +23,7 @@ function PostForm() {
 
   const onSubmit = ({ title, body }: PostSubmitForm) => {
     createPost.mutate({ title: title, body: body });
-    reset();
+    reset(); // TODO: FIX THIS CUZ ITS BAD
   };
 
   return (

@@ -1,4 +1,9 @@
-import { type GetServerSidePropsContext, type NextPage } from "next";
+import {
+  NextApiRequest,
+  NextApiResponse,
+  type GetServerSidePropsContext,
+  type NextPage,
+} from "next";
 import Link from "next/link";
 import { signIn, signOut, useSession } from "next-auth/react";
 import Image from "next/image";
@@ -8,14 +13,13 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import { useEffect } from "react";
 import { unstable_getServerSession } from "next-auth";
 import { authOptions } from "./api/auth/[...nextauth]";
+
 import { useRouter } from "next/router";
 
-type UserSubmitForm = {
+type UserLoginForm = {
   username: string;
+  email: string;
   password: string;
-  birthday: Date;
-  gender: string;
-  acceptTerms: boolean;
 };
 
 const Login: NextPage = () => {
@@ -23,11 +27,14 @@ const Login: NextPage = () => {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<UserSubmitForm>();
+  } = useForm<UserLoginForm>();
 
-  const onSubmit = (data: UserSubmitForm) => {
-    console.log(data);
-    alert(JSON.stringify(data));
+  const onSubmit = (data: UserLoginForm) => {
+    void signIn("credentials", {
+      callbackUrl: `${window.location.origin}/home`,
+      username: data.username,
+      password: data.password,
+    });
   };
 
   return (
@@ -80,14 +87,12 @@ const Login: NextPage = () => {
                 {...register("password", { required: true })}
               />
             </div>
-
             <input
               type="submit"
               className="w-full rounded-lg bg-blue-700 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 sm:w-auto"
             />
           </form>
           <hr className="my-6 h-px border-0 bg-gray-200 dark:bg-gray-600" />
-
           <AuthShowcase />
         </div>
       </div>
@@ -106,10 +111,10 @@ const AuthShowcase: React.FC = () => {
     { enabled: sessionData?.user !== undefined }
   );
 
-  const testUser = api.user.getMyAccounts.useQuery();
+  // const testUser = api.user.getMyAccounts.useQuery();
 
   useEffect(() => {
-    console.log(testUser.data);
+    // console.log(testUser.data);
     console.log(sessionData?.user);
     void router.push("home");
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -224,7 +229,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
   const session = await unstable_getServerSession(
     context.req,
     context.res,
-    authOptions
+    authOptions(context.req as NextApiRequest, context.res as NextApiResponse)
   );
 
   if (session) {

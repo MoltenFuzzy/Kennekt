@@ -1,4 +1,9 @@
-import type { GetServerSidePropsContext, NextPage } from "next";
+import type {
+  GetServerSidePropsContext,
+  NextApiRequest,
+  NextApiResponse,
+  NextPage,
+} from "next";
 import Head from "next/head";
 import Link from "next/link";
 import { signIn, signOut, useSession } from "next-auth/react";
@@ -7,7 +12,7 @@ import { api } from "../utils/api";
 import NavBar from "../components/NavBar";
 import { unstable_getServerSession } from "next-auth";
 import { authOptions } from "./api/auth/[...nextauth]";
-import Modal from "../components/Model";
+import Modal from "../components/Modal";
 import { useForm } from "react-hook-form";
 import PostForm from "../components/PostForm";
 import Post from "../components/Post";
@@ -15,23 +20,22 @@ import React from "react";
 
 const Home: NextPage = () => {
   const { data: sessionData } = useSession();
-  // TODO: add custom hook to ensure user has a username
-  const { data: secretMessage } = api.example.getSecretMessage.useQuery(
-    undefined, // no input
-    { enabled: sessionData?.user !== undefined }
-  );
+  // const { data: secretMessage } = api.example.getSecretMessage.useQuery(
+  //   undefined, // no input
+  //   { enabled: sessionData?.user !== undefined }
+  // );
 
   const posts = api.post.getAll.useQuery();
 
-  React.useEffect(() => {
-    console.log(sessionData?.user);
-  });
+  // React.useEffect(() => {
+  //   console.log(sessionData?.user);
+  // });
 
   return (
     <div className="min-h-screen bg-[#1C222D]">
       <NavBar user={sessionData?.user} />
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <Modal title={"Test"} />
+        <Modal title={"Setup Profile"} />
         <div></div>
         <div className="container mx-auto ">
           {/* <p className="text-center text-2xl text-white">
@@ -77,8 +81,10 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
   const session = await unstable_getServerSession(
     context.req,
     context.res,
-    authOptions
+    authOptions(context.req as NextApiRequest, context.res as NextApiResponse)
   );
+
+  console.log(session);
 
   if (!session) {
     return {
