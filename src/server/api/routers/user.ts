@@ -14,11 +14,35 @@ export const userRouter = createTRPCRouter({
     });
   }),
   getOne: publicProcedure
-    .input(z.object({ id: z.string() }))
+    .input(
+      z.object({
+        id: z.string().optional(),
+        username: z.string().optional(),
+        email: z.string().optional(),
+      })
+    )
     .query(({ ctx, input }) => {
-      return ctx.prisma.user.findUnique({
+      return ctx.prisma.user.findFirst({
         where: {
-          id: input.id,
+          OR: [
+            { id: input.id },
+            { username: input.username },
+            { email: input.email },
+          ],
+        },
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          username: true,
+          email: true,
+          image: true,
+          role: true,
+          posts: true,
+          followedBy: true,
+          following: true,
+          likedPosts: true,
+          createdAt: true,
         },
       });
     }),

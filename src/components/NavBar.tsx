@@ -1,6 +1,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import logo from "../../images/logo.png";
+import defaultPicture from "../../images/user.png";
 import Link from "next/link";
 import type { Session } from "next-auth";
 import HamburgerMenu from "./Hamburger";
@@ -50,7 +51,7 @@ function NavBar({ user }: NavBarProps) {
     );
   } else {
     return (
-      <header className="flex h-14 items-center justify-between bg-zinc-800 shadow-[0_2px_4px_rgba(0,0,0,0.3)]">
+      <header className="sticky flex h-14 items-center justify-between bg-zinc-800 shadow-[0_2px_4px_rgba(0,0,0,0.3)]">
         <div className="ml-5 flex shrink-0 basis-1/4 items-center justify-center">
           <Link href="/home">
             <Image alt="kennekt" src={logo.src} width={150} height={150} />
@@ -86,30 +87,14 @@ function NavBar({ user }: NavBarProps) {
           </div>
         </form>
         <div className="hidden basis-1/4 items-center justify-center sm:flex">
-          <button
-            type="button"
-            title={sessionData.user?.username}
-            onClick={() => console.log("clicked profile")}
-          >
-            {user?.image ? (
-              <Image alt="profile" src={user?.image} height={50} width={50} />
-            ) : (
-              <div className="relative h-12 w-12 overflow-hidden rounded-full bg-gray-100 dark:bg-gray-600">
-                <svg
-                  className="absolute -left-1 h-14 w-14 text-gray-400"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    fill-rule="evenodd"
-                    d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
-                    clip-rule="evenodd"
-                  ></path>
-                </svg>
-              </div>
-            )}
-          </button>
+          <Link href={`/user/${sessionData?.user?.username as string}`}>
+            <Image
+              alt="profile"
+              src={user?.image || defaultPicture.src}
+              height={40}
+              width={40}
+            />
+          </Link>
         </div>
         <div className="mr-5 flex items-center sm:hidden">
           <HamburgerMenu />

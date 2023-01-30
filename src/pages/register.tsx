@@ -1,11 +1,10 @@
-import {
-  NextApiRequest,
-  type GetServerSidePropsContext,
-  type NextPage,
+import type {
   NextApiResponse,
+  NextApiRequest,
+  GetServerSidePropsContext,
+  NextPage,
 } from "next";
 import Link from "next/link";
-import { signIn, signOut, useSession } from "next-auth/react";
 import Image from "next/image";
 import logo from "../../images/logo.png";
 import { api } from "../utils/api";
@@ -13,6 +12,7 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import { unstable_getServerSession } from "next-auth";
 import { authOptions } from "./api/auth/[...nextauth]";
 import { useEffect } from "react";
+import { useRouter } from "next/router";
 
 type UserRegisterForm = {
   firstName: string;
@@ -25,6 +25,8 @@ type UserRegisterForm = {
 };
 
 const Register: NextPage = () => {
+  const router = useRouter();
+
   const {
     register,
     setError,
@@ -32,7 +34,11 @@ const Register: NextPage = () => {
     formState: { errors },
   } = useForm<UserRegisterForm>();
 
-  const createUser = api.user.createOne.useMutation();
+  const createUser = api.user.createOne.useMutation({
+    onSuccess() {
+      void router.push("/login");
+    },
+  });
 
   const onSubmit = ({
     username,
@@ -59,7 +65,6 @@ const Register: NextPage = () => {
   };
 
   useEffect(() => {
-    console.log();
     console.log(createUser.error?.message);
     if (createUser.error?.message === "Email already exists") {
       return setError(
@@ -75,6 +80,11 @@ const Register: NextPage = () => {
       );
     }
   }, [createUser.error, setError]);
+
+  useEffect(() => {
+    console.log(createUser.variables?.username);
+    console.log(createUser.variables?.password);
+  });
 
   return (
     <div className="min-h-screen bg-[radial-gradient(ellipse_at_bottom_right,_var(--tw-gradient-stops))] from-slate-900 via-slate-800 to-zinc-900">
@@ -268,6 +278,8 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     context.res,
     authOptions(context.req as NextApiRequest, context.res as NextApiResponse)
   );
+
+  console.log("session", session);
 
   if (session) {
     return {

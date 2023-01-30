@@ -92,6 +92,11 @@ const Login: NextPage = () => {
               className="w-full rounded-lg bg-blue-700 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 sm:w-auto"
             />
           </form>
+          <div className="mt-6 text-center ">
+            <Link href="/register" className="hover:underline">
+              Sign up
+            </Link>
+          </div>
           <hr className="my-6 h-px border-0 bg-gray-200 dark:bg-gray-600" />
           <AuthShowcase />
         </div>
@@ -184,7 +189,7 @@ const AuthShowcase: React.FC = () => {
         </>
       )}
 
-      {sessionData && (
+      {/* {sessionData && (
         <button
           onClick={sessionData ? () => void signOut() : () => void 0}
           type="button"
@@ -192,7 +197,7 @@ const AuthShowcase: React.FC = () => {
         >
           Sign Out
         </button>
-      )}
+      )} */}
     </>
   );
 };

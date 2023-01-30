@@ -268,7 +268,7 @@ function PostForm() {
         >
           Publish post
         </button>
-      </form>{" "}
+      </form>
     </>
   );
 }

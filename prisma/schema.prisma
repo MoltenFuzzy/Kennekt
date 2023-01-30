@@ -26,7 +26,7 @@ model Account {
     userId            String
     type              String
     provider          String
-    providerAccountId String
+    providerAccountId String?
     refresh_token     String? @db.Text
     access_token      String? @db.Text
     expires_at        Int?
@@ -65,8 +65,9 @@ model User {
     // many to many
     followedBy    Follows[] @relation("following")
     following     Follows[] @relation("follower")
-    likedPosts    Post[]    @relation("likedBy")
-    likedComments Comment[] @relation("likedBy")
+    // many to many
+    likedPosts    Post[]    @relation("likedPosts")
+    createdAt     DateTime  @default(now())
 }
 
 model Follows {
@@ -80,36 +81,37 @@ model Follows {
 
 model Post {
     id            String    @id @default(cuid())
-    createdAt     DateTime  @default(now())
-    updatedAt     DateTime  @updatedAt
     published     Boolean   @default(false)
     title         String    @db.VarChar(255)
     body          String    @db.Text
     likesCount    Int       @default(0)
-    likedBy       User[]    @relation("likedBy")
+    // many to many - many users can like many posts?
+    likedBy       User[]    @relation("likedPosts")
     authorId      String
     author        User      @relation(fields: [authorId], references: [id])
     commentsCount Int       @default(0)
     comments      Comment[]
+    createdAt     DateTime  @default(now())
+    updatedAt     DateTime  @updatedAt
 }
 
 // TODO: https://stackoverflow.com/questions/70095411/i-want-to-use-prisma-to-store-nested-comments-like-on-reddit-how-can-i-retrie
 model Comment {
     id              String    @id @default(cuid())
     comment         String    @db.VarChar(255)
-    createdAt       DateTime  @default(now())
-    updatedAt       DateTime  @updatedAt
     published       Boolean   @default(false)
     authorId        String
     author          User      @relation(fields: [authorId], references: [id])
     postId          String
     post            Post      @relation(fields: [postId], references: [id])
     likesCount      Int       @default(0)
-    likedBy         User[]    @relation("likedBy")
+    // likedBy         User[]    @relation("likedBy", references: [id])
     repliesCount    Int       @default(0)
     replies         Comment[] @relation("replies")
     parentCommentId String?
     parentComment   Comment?  @relation("replies", fields: [parentCommentId], references: [id])
+    createdAt       DateTime  @default(now())
+    updatedAt       DateTime  @updatedAt
 }
 
 model VerificationToken {
