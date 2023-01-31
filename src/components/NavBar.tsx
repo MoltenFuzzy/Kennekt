@@ -1,4 +1,3 @@
-import { useState } from "react";
 import Image from "next/image";
 import logo from "../../images/logo.png";
 import defaultPicture from "../../images/user.png";
@@ -16,7 +15,7 @@ function NavBar({ user }: NavBarProps) {
 
   if (!sessionData) {
     return (
-      <header className="flex h-14 items-center justify-between bg-zinc-800 drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]">
+      <header className="sticky top-0 flex h-14 items-center justify-between bg-zinc-800 drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]">
         <Link href="/">
           <Image
             className="ml-5"
@@ -51,7 +50,7 @@ function NavBar({ user }: NavBarProps) {
     );
   } else {
     return (
-      <header className="sticky flex h-14 items-center justify-between bg-zinc-800 shadow-[0_2px_4px_rgba(0,0,0,0.3)]">
+      <header className="sticky top-0 flex h-14 items-center justify-between bg-zinc-800 shadow-[0_2px_4px_rgba(0,0,0,0.3)]">
         <div className="ml-5 flex shrink-0 basis-1/4 items-center justify-center">
           <Link href="/home">
             <Image alt="kennekt" src={logo.src} width={150} height={150} />
@@ -71,9 +70,9 @@ function NavBar({ user }: NavBarProps) {
                 xmlns="http://www.w3.org/2000/svg"
               >
                 <path
-                  fill-rule="evenodd"
+                  fillRule="evenodd"
                   d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
-                  clip-rule="evenodd"
+                  clipRule="evenodd"
                 ></path>
               </svg>
             </div>

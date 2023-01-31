@@ -22,7 +22,7 @@ export const userRouter = createTRPCRouter({
       })
     )
     .query(({ ctx, input }) => {
-      return ctx.prisma.user.findFirst({
+      return ctx.prisma.user.findFirstOrThrow({
         where: {
           OR: [
             { id: input.id },

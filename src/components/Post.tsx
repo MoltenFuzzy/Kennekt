@@ -1,6 +1,6 @@
 import React from "react";
 import Image from "next/image";
-import type { User } from "@prisma/client";
+import type { User, Image as ImageType } from "@prisma/client";
 import defaultPicture from "../../images/user.png";
 import Link from "next/link";
 import { api } from "../utils/api";
@@ -10,11 +10,20 @@ interface PostProps {
   user: User;
   title: string;
   body: string;
+  images: ImageType[];
   likes: number;
   comments: number;
 }
 
-function Post({ id, user: author, title, body, likes, comments }: PostProps) {
+function Post({
+  id,
+  user: author,
+  title,
+  body,
+  images,
+  likes,
+  comments,
+}: PostProps) {
   const post = api.post.getOne.useQuery({ id: id });
   const likePost = api.post.likeOne.useMutation();
 
@@ -33,6 +42,19 @@ function Post({ id, user: author, title, body, likes, comments }: PostProps) {
         <div className="ml-5">
           <div>{title}</div>
           <div>{body}</div>
+          {images.length > 0 && (
+            <div className="grid-col-1 grid">
+              {images.map((image) => (
+                <Image
+                  key={image.id}
+                  src={image.url}
+                  alt={image.id}
+                  height={100}
+                  width={100}
+                />
+              ))}
+            </div>
+          )}
           <div className="flex">
             <button
               type="button"

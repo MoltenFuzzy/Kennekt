@@ -60,6 +60,7 @@ model User {
     role          Role      @default(USER)
     accounts      Account[]
     posts         Post[]
+    images        Image[]
     comments      Comment[]
     sessions      Session[]
     // many to many
@@ -81,9 +82,9 @@ model Follows {
 
 model Post {
     id            String    @id @default(cuid())
-    published     Boolean   @default(false)
     title         String    @db.VarChar(255)
     body          String    @db.Text
+    images        Image[]
     likesCount    Int       @default(0)
     // many to many - many users can like many posts?
     likedBy       User[]    @relation("likedPosts")
@@ -93,6 +94,20 @@ model Post {
     comments      Comment[]
     createdAt     DateTime  @default(now())
     updatedAt     DateTime  @updatedAt
+}
+
+model Image {
+    id        String   @id @default(cuid())
+    url       String
+    filename  String?
+    mimetype  String?
+    encoding  String?
+    userId    String
+    user      User     @relation(fields: [userId], references: [id])
+    postId    String?
+    post      Post?    @relation(fields: [postId], references: [id])
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
 }
 
 // TODO: https://stackoverflow.com/questions/70095411/i-want-to-use-prisma-to-store-nested-comments-like-on-reddit-how-can-i-retrie
