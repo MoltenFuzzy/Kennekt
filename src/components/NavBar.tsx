@@ -15,7 +15,7 @@ function NavBar({ user }: NavBarProps) {
 
   if (!sessionData) {
     return (
-      <header className="sticky top-0 flex h-14 items-center justify-between bg-zinc-800 drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]">
+      <header className="sticky top-0 z-10 flex h-14 items-center justify-between bg-zinc-800 drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]">
         <Link href="/">
           <Image
             className="ml-5"
@@ -50,7 +50,7 @@ function NavBar({ user }: NavBarProps) {
     );
   } else {
     return (
-      <header className="sticky top-0 flex h-14 items-center justify-between bg-zinc-800 shadow-[0_2px_4px_rgba(0,0,0,0.3)]">
+      <header className="sticky top-0 z-10 flex h-14 items-center justify-between bg-zinc-800 shadow-[0_2px_4px_rgba(0,0,0,0.3)]">
         <div className="ml-5 flex shrink-0 basis-1/4 items-center justify-center">
           <Link href="/home">
             <Image alt="kennekt" src={logo.src} width={150} height={150} />

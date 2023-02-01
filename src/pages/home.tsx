@@ -40,9 +40,7 @@ const Home: NextPage = () => {
           {sessionData?.user?.username ? null : (
             <Modal title={"Setup Profile"} />
           )}
-          <div className="col-span-1 hidden text-center text-white lg:block ">
-            Empty Column
-          </div>
+          <div className="col-span-1 hidden text-center text-white lg:block "></div>
           <div className="col-span-2">
             <div className="container mx-auto mt-2 grid grid-cols-1 gap-y-4 p-6 sm:p-3">
               {/* <p className="text-center text-2xl text-white">
@@ -65,7 +63,7 @@ const Home: NextPage = () => {
             </div>
           </div>
           <div className="col-span-1 hidden flex-none sm:block">
-            <div className="fixed right-0 h-screen bg-black text-center text-white sm:w-[28%] lg:w-[20%] xl:w-[18%] 2xl:w-[15%]">
+            <div className="fixed right-0 flex h-screen  justify-center bg-[#202023] text-center text-white sm:w-[28%] lg:w-[20%] xl:w-[18%] 2xl:w-[15%]">
               {sessionData && (
                 <button
                   onClick={() => {
@@ -76,7 +74,7 @@ const Home: NextPage = () => {
                     }
                   }}
                   type="button"
-                  className="w-full rounded-lg bg-gradient-to-r from-teal-400 via-teal-500 to-teal-600 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-gradient-to-br focus:outline-none focus:ring-4 focus:ring-teal-300 dark:focus:ring-teal-800"
+                  className="h-10 rounded-lg bg-gradient-to-r from-teal-400 via-teal-500 to-teal-600 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-gradient-to-br focus:outline-none focus:ring-4 focus:ring-teal-300 dark:focus:ring-teal-800"
                 >
                   Sign Out
                 </button>

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
-import "animate.css";
 import Link from "next/link";
 import { signOut, useSession } from "next-auth/react";
+import "animate.css";
 
 const HamburgerMenu = () => {
   const { data: sessionData } = useSession();
@@ -15,10 +15,6 @@ const HamburgerMenu = () => {
       setIsAnimating(false);
     }, 700 /* delay waits for animation to finish */);
   };
-
-  useEffect(() => {
-    console.log(isOpen, isAnimating);
-  });
 
   if (!sessionData) {
     return (

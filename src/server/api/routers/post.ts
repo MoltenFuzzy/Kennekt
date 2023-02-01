@@ -13,6 +13,9 @@ export const postRouter = createTRPCRouter({
     }),
   getAll: publicProcedure.query(({ ctx }) => {
     return ctx.prisma.post.findMany({
+      orderBy: {
+        createdAt: "desc",
+      },
       include: { author: true, images: true },
     });
   }),
@@ -23,7 +26,14 @@ export const postRouter = createTRPCRouter({
       const image = await ctx.prisma.image.create({
         data: {
           userId: ctx.session.user.id,
-          url: "https://picsum.photos/200/300",
+          url: "https://mdbootstrap.com/img/Photos/Slides/img%20(22).jpg",
+        },
+      });
+
+      const image2 = await ctx.prisma.image.create({
+        data: {
+          userId: ctx.session.user.id,
+          url: "https://mdbootstrap.com/img/Photos/Slides/img%20(23).jpg",
         },
       });
 
@@ -34,9 +44,7 @@ export const postRouter = createTRPCRouter({
           title: input.title,
           body: input.body,
           images: {
-            connect: {
-              id: image.id,
-            },
+            connect: [{ id: image.id }, { id: image2.id }],
           },
         },
         // select returns those records
