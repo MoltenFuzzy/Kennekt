@@ -32,7 +32,11 @@ function Post({
   const { isLikePressed, isDislikePressed, handleClick } =
     useAnimatePostIcons();
   const utils = api.useContext();
-  const likePost = api.post.likeOne.useMutation();
+  const likePost = api.post.likeOne.useMutation({
+    onSuccess() {
+      void utils.post.invalidate();
+    },
+  });
   const deletePost = api.post.deleteOne.useMutation({
     onSuccess() {
       void utils.post.invalidate();
