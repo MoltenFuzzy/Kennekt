@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import Image from "next/image";
 import type { User, Image as ImageType } from "@prisma/client";
 import defaultPicture from "../../images/user.png";
@@ -6,7 +6,9 @@ import Link from "next/link";
 import { api } from "../utils/api";
 import ImageCarousel from "./ImageCarousel";
 import { Dropdown } from "flowbite-react";
-import { TbDotsDiagonal } from "react-icons/tb";
+import { FiTrendingUp, FiTrendingDown } from "react-icons/fi";
+import "animate.css";
+import useAnimatePostIcons from "../hooks/useAnimatePostIcons";
 
 interface PostProps {
   id: string;
@@ -27,11 +29,18 @@ function Post({
   likes,
   comments,
 }: PostProps) {
-  const post = api.post.getOne.useQuery({ id: id });
+  const { isLikePressed, isDislikePressed, handleClick } =
+    useAnimatePostIcons();
+  const utils = api.useContext();
   const likePost = api.post.likeOne.useMutation();
+  const deletePost = api.post.deleteOne.useMutation({
+    onSuccess() {
+      void utils.post.invalidate();
+    },
+  });
 
   return (
-    <div className="flex-col rounded border-[#2d3748] bg-zinc-800 p-6 text-white shadow-md  ">
+    <div className="flex-col rounded border-[#2d3748] bg-zinc-800 p-6 text-white shadow-md">
       <div className="flex justify-between">
         <div className="flex items-center">
           <Link href={`/user/${author?.username || ""}`}>
@@ -45,17 +54,22 @@ function Post({
           <div>{author?.username}</div>
         </div>
         <div>
-          {/* <Dropdown
-            label="test"
-            arrowIcon={false}
+          <Dropdown
+            label=""
+            arrowIcon={true}
             inline={true}
             dismissOnClick={false}
           >
-            <Dropdown.Item>Dashboard</Dropdown.Item>
-            <Dropdown.Item>Settings</Dropdown.Item>
-            <Dropdown.Item>Earnings</Dropdown.Item>
-            <Dropdown.Item>Sign out</Dropdown.Item>
-          </Dropdown> */}
+            {/* TODO: only allow auth'd user to update and delete their own posts */}
+            <Dropdown.Item>Update</Dropdown.Item>
+            <Dropdown.Item
+              onClick={() => {
+                deletePost.mutate({ id });
+              }}
+            >
+              Delete
+            </Dropdown.Item>
+          </Dropdown>
         </div>
       </div>
       <div className="mt-5 w-full text-white ">
@@ -63,24 +77,44 @@ function Post({
         <div>{body}</div>
       </div>
       <div>{images.length > 0 && <ImageCarousel images={images} />}</div>
-      <div className="flex">
-        <button
-          type="button"
-          onClick={() => {
-            likePost.mutate({ id: id });
-          }}
-          className="mr-2 mb-2 rounded-lg bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-gradient-to-br focus:outline-none focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-800"
-        >
-          Likes
-        </button>
-        <div>{likes}</div>
-        <button
-          type="button"
-          className="mr-2 mb-2 rounded-lg bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-gradient-to-br focus:outline-none focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-800"
-        >
-          Comments
-        </button>
-        <div>{comments}</div>
+      <div className="flex gap-x-5">
+        <div className="flex items-center gap-x-2">
+          <button
+            title="up"
+            type="button"
+            onClick={() => {
+              likePost.mutate({ id: id });
+              handleClick(250, true);
+            }}
+          >
+            <FiTrendingUp
+              color="#255bcf"
+              size={30}
+              className={`animate__animated ${
+                isLikePressed ? "animate__heartBeat" : ""
+              }`}
+            />
+          </button>
+          <div>{likes}</div>
+        </div>
+        <div className="flex items-center gap-x-2">
+          <button
+            type="button"
+            title="down"
+            onClick={() => {
+              handleClick(250, false);
+            }}
+          >
+            <FiTrendingDown
+              color="#eb4034"
+              size={30}
+              className={`animate__animated ${
+                isDislikePressed ? "animate__heartBeat" : ""
+              }`}
+            />
+          </button>
+          <div>{comments}</div>
+        </div>
       </div>
     </div>
   );

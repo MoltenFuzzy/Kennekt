@@ -17,8 +17,8 @@ const ImageCarousel = ({ images }: ImageCarouselProps) => {
               key={image.id}
               src={image.url}
               alt={image.filename || ""}
-              width={400}
-              height={400}
+              width={500}
+              height={300}
             />
           ))}
         </Carousel>
@@ -29,8 +29,8 @@ const ImageCarousel = ({ images }: ImageCarouselProps) => {
               key={image.id}
               src={image.url}
               alt={image.filename || ""}
-              width={400}
-              height={400}
+              width={500}
+              height={300}
             />
           ))}
         </Carousel>

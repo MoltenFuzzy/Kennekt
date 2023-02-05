@@ -1,20 +1,12 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import Link from "next/link";
 import { signOut, useSession } from "next-auth/react";
 import "animate.css";
+import { useHamburgeDropDown } from "../hooks/useHamburgerDropDown";
 
 const HamburgerMenu = () => {
   const { data: sessionData } = useSession();
-  const [isOpen, setIsOpen] = useState(false);
-  const [isAnimating, setIsAnimating] = useState(false);
-
-  const handleClick = () => {
-    setIsAnimating(true);
-    setIsOpen(!isOpen);
-    setTimeout(() => {
-      setIsAnimating(false);
-    }, 700 /* delay waits for animation to finish */);
-  };
+  const { isOpen, isAnimating, handleClick } = useHamburgeDropDown();
 
   if (!sessionData) {
     return (

@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 import { createTRPCRouter, publicProcedure, protectedProcedure } from "../trpc";
+import { TRPCError } from "@trpc/server";
 
 export const postRouter = createTRPCRouter({
   getOne: publicProcedure
@@ -72,6 +73,28 @@ export const postRouter = createTRPCRouter({
 
       // return post object
       return post;
+    }),
+  updateOne: protectedProcedure.mutation(() => {
+    return null;
+  }),
+  deleteOne: protectedProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const post = await ctx.prisma.post.findUnique({
+        where: { id: input.id },
+        select: { authorId: true },
+      });
+      // backend validation for user authorization to delete post
+      if (post?.authorId !== ctx.session.user.id) {
+        throw new TRPCError({
+          code: "CONFLICT",
+          message: "You are not authorized to delete this post",
+        });
+      }
+
+      return ctx.prisma.post.delete({
+        where: { id: input.id },
+      });
     }),
   likeOne: protectedProcedure
     .input(z.object({ id: z.string() }))
