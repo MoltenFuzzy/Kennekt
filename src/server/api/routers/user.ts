@@ -104,6 +104,7 @@ export const userRouter = createTRPCRouter({
           }
         }
       }
+      console.log("user created");
     }),
 
   followUser: protectedProcedure.mutation(({ ctx }) => {

@@ -81,10 +81,10 @@ const Register: NextPage = () => {
     }
   }, [createUser.error, setError]);
 
-  useEffect(() => {
-    console.log(createUser.variables?.username);
-    console.log(createUser.variables?.password);
-  });
+  // useEffect(() => {
+  //   console.log(createUser.variables?.username);
+  //   console.log(createUser.variables?.password);
+  // });
 
   return (
     <div className="min-h-screen bg-[radial-gradient(ellipse_at_bottom_right,_var(--tw-gradient-stops))] from-slate-900 via-slate-800 to-zinc-900">
