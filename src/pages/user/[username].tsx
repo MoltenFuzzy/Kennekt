@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import type {
   GetServerSidePropsContext,
   NextApiRequest,
@@ -11,45 +11,66 @@ import defaultPicture from "../../../images/user.png";
 import Image from "next/image";
 import { unstable_getServerSession } from "next-auth";
 import { authOptions } from "../api/auth/[...nextauth]";
-import type { CreateNextContextOptions } from "@trpc/server/adapters/next";
 import { createProxySSGHelpers } from "@trpc/react-query/ssg";
 import { createTRPCContext } from "../../server/api/trpc";
 import { appRouter } from "../../server/api/root";
 import superjson from "superjson";
+import Post from "../../components/Post";
+import { useSession } from "next-auth/react";
+import Navbar from "../../components/NavBar";
 
 const Profile: NextPage = () => {
   const router = useRouter();
-  const user = api.user.getOne.useQuery(
-    {
-      username: router.query.username as string,
-    },
-    {
-      onError() {
-        console.log("error");
-      },
-    }
-  );
 
-  // useEffect(() => {
-  //   console.log(user.data?.image);
-  //   const test = user.data?.image?.replace("s96", "");
-  //   console.log(test);
-  // });
+  const { data: sessionData } = useSession();
+
+  const user = api.user.getOne.useQuery({
+    username: router.query.username as string,
+  });
+
+  const posts = api.post.getAllFromUser.useQuery({
+    username: router.query.username as string,
+  });
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(ellipse_at_bottom_right,_var(--tw-gradient-stops))] from-slate-900 via-slate-800 to-zinc-900">
-      <div className="h-screen bg-black p-6 sm:container sm:mx-auto">
-        <div className="flex justify-start">
-          <Image
-            alt="profile"
-            src={user.data?.image?.replace("s96", "") || defaultPicture.src}
-            height={200}
-            width={200}
-            className=" mt-10 rounded-full border-4 border-red-900"
-          />
+    <>
+      <Navbar user={sessionData?.user} />
+      <div className="min-h-screen  bg-[radial-gradient(ellipse_at_bottom_right,_var(--tw-gradient-stops))] from-slate-900 via-slate-800 to-zinc-900 dark:text-white">
+        <div className="container mx-auto min-h-screen bg-zinc-900 p-6 md:w-2/3">
+          <div className="mb-5 flex flex-col justify-center gap-x-5 sm:flex-row sm:justify-start">
+            <Image
+              alt="profile"
+              src={user.data?.image?.replace("s96", "") || defaultPicture.src}
+              height={200}
+              width={200}
+              className="rounded-xl border-4 border-white"
+            />
+            <div className="flex flex-col justify-center">
+              <h1 className="text-4xl font-bold">{user.data?.username}</h1>
+              <h2 className="text-center opacity-60">
+                {`${user.data?.firstName || ""} ${user.data?.lastName || ""}`}
+              </h2>
+            </div>
+          </div>
+          <div className="flex flex-col items-center sm:items-start"></div>
+          <div className="flex flex-col gap-5 lg:w-1/2">
+            {posts.data?.map((post, index) => (
+              <Post
+                key={index}
+                id={post.id}
+                user={post.author}
+                session={sessionData}
+                title={post.title}
+                body={post.body}
+                images={post.images}
+                likes={post.likesCount}
+                comments={0}
+              />
+            ))}
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 
@@ -82,6 +103,9 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
 
   try {
     await ssg.user.getOne.fetch(context.query);
+    await ssg.post.getAllFromUser.prefetch({
+      username: context.query.username as string,
+    });
   } catch (error) {
     return {
       redirect: {
@@ -93,6 +117,9 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
   }
 
   return {
-    props: { session },
+    props: {
+      trpcState: ssg.dehydrate(),
+      session,
+    },
   };
 }

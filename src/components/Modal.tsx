@@ -39,7 +39,7 @@ const Modal: React.FC<ModalProps> = ({ title }) => {
   };
 
   return (
-    <div className="fixed top-0 left-0 right-0 bottom-0 flex items-center justify-center bg-black bg-opacity-60">
+    <div className="fixed top-0 left-0 right-0 bottom-0 z-10 flex items-center justify-center bg-black bg-opacity-60">
       <div className="h-5/6 w-1/2 rounded-lg bg-gray-500 text-white">
         <div className="flex justify-center">
           <form

@@ -68,6 +68,7 @@ model User {
     following     Follows[] @relation("follower")
     // many to many
     likedPosts    Post[]    @relation("likedPosts")
+    dislikedPosts Post[]    @relation("dislikedPosts")
     createdAt     DateTime  @default(now())
 }
 
@@ -86,8 +87,10 @@ model Post {
     body          String    @db.Text
     images        Image[]
     likesCount    Int       @default(0)
+    dislikesCount Int       @default(0)
     // many to many - many users can like many posts?
     likedBy       User[]    @relation("likedPosts")
+    dislikedBy    User[]    @relation("dislikedPosts")
     authorId      String
     author        User      @relation(fields: [authorId], references: [id])
     commentsCount Int       @default(0)
@@ -105,7 +108,7 @@ model Image {
     userId    String
     user      User     @relation(fields: [userId], references: [id])
     postId    String?
-    post      Post?    @relation(fields: [postId], references: [id])
+    post      Post?    @relation(fields: [postId], references: [id], onDelete: Cascade)
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 }

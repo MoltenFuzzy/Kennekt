@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 // for logged in user only
-export const useHamburgeDropDown = () => {
+export const useHamburgerDropDown = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
 
@@ -16,4 +16,4 @@ export const useHamburgeDropDown = () => {
   return { isOpen, isAnimating, handleClick };
 };
 
-export default useHamburgeDropDown;
+export default useHamburgerDropDown;

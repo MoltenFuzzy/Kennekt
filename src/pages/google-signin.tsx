@@ -1,4 +1,4 @@
-import { type GetServerSidePropsContext, type NextPage } from "next";
+import type { GetServerSidePropsContext, NextPage } from "next";
 import { signIn, useSession } from "next-auth/react";
 import { useEffect } from "react";
 

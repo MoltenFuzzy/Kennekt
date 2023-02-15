@@ -2,11 +2,11 @@ import React from "react";
 import Link from "next/link";
 import { signOut, useSession } from "next-auth/react";
 import "animate.css";
-import { useHamburgeDropDown } from "../hooks/useHamburgerDropDown";
+import { useHamburgerDropDown } from "../hooks/useHamburgerDropDown";
 
 const HamburgerMenu = () => {
   const { data: sessionData } = useSession();
-  const { isOpen, isAnimating, handleClick } = useHamburgeDropDown();
+  const { isOpen, isAnimating, handleClick } = useHamburgerDropDown();
 
   if (!sessionData) {
     return (

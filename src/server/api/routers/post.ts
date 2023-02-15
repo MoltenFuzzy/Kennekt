@@ -12,6 +12,24 @@ export const postRouter = createTRPCRouter({
         include: { author: true },
       });
     }),
+  getAllFromUser: publicProcedure
+    .input(
+      z.object({
+        id: z.string().optional(),
+        username: z.string().optional(),
+      })
+    )
+    .query(({ ctx, input }) => {
+      return ctx.prisma.post.findMany({
+        where: {
+          OR: [
+            { authorId: input.id },
+            { author: { username: input.username } },
+          ],
+        },
+        include: { author: true, images: true },
+      });
+    }),
   getAll: publicProcedure.query(({ ctx }) => {
     return ctx.prisma.post.findMany({
       orderBy: {
@@ -123,6 +141,40 @@ export const postRouter = createTRPCRouter({
         data: {
           likesCount: { decrement: 1 },
           likedBy: {
+            disconnect: {
+              id: ctx.session.user.id,
+            },
+          },
+        },
+      });
+    }),
+  dislikeOne: protectedProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(({ ctx, input }) => {
+      return ctx.prisma.post.update({
+        where: {
+          id: input.id,
+        },
+        data: {
+          dislikesCount: { increment: 1 },
+          dislikedBy: {
+            connect: {
+              id: ctx.session.user.id,
+            },
+          },
+        },
+      });
+    }),
+  undislikeOne: protectedProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(({ ctx, input }) => {
+      return ctx.prisma.post.update({
+        where: {
+          id: input.id,
+        },
+        data: {
+          dislikesCount: { decrement: 1 },
+          dislikedBy: {
             disconnect: {
               id: ctx.session.user.id,
             },

@@ -1,18 +1,20 @@
-import React, { useState } from "react";
+import React from "react";
 import Image from "next/image";
 import type { User, Image as ImageType } from "@prisma/client";
+import type { Session } from "next-auth";
 import defaultPicture from "../../images/user.png";
 import Link from "next/link";
 import { api } from "../utils/api";
-import ImageCarousel from "./ImageCarousel";
-import { Dropdown } from "flowbite-react";
-import { FiTrendingUp, FiTrendingDown } from "react-icons/fi";
+import Dropdown from "./Dropdown";
+import LikeButton from "./LikeButton";
+import DislikeButton from "./DislikeButton";
 import "animate.css";
-import useAnimatePostIcons from "../hooks/useAnimatePostIcons";
+import ImageCarousel from "./ImageCarousel";
 
 interface PostProps {
   id: string;
   user: User;
+  session: Session | null;
   title: string;
   body: string;
   images: ImageType[];
@@ -23,20 +25,14 @@ interface PostProps {
 function Post({
   id,
   user: author,
+  session,
   title,
   body,
   images,
   likes,
   comments,
 }: PostProps) {
-  const { isLikePressed, isDislikePressed, handleClick } =
-    useAnimatePostIcons();
   const utils = api.useContext();
-  const likePost = api.post.likeOne.useMutation({
-    onSuccess() {
-      void utils.post.invalidate();
-    },
-  });
   const deletePost = api.post.deleteOne.useMutation({
     onSuccess() {
       void utils.post.invalidate();
@@ -44,80 +40,75 @@ function Post({
   });
 
   return (
-    <div className="flex-col rounded border-[#2d3748] bg-zinc-800 p-6 text-white shadow-md">
-      <div className="flex justify-between">
-        <div className="flex items-center">
-          <Link href={`/user/${author?.username || ""}`}>
-            <Image
-              alt="profile"
-              src={author?.image || defaultPicture.src}
-              height={50}
-              width={50}
-            />
-          </Link>
-          <div>{author?.username}</div>
-        </div>
-        <div>
-          <Dropdown
-            label=""
-            arrowIcon={true}
-            inline={true}
-            dismissOnClick={false}
-          >
-            {/* TODO: only allow auth'd user to update and delete their own posts */}
-            <Dropdown.Item>Update</Dropdown.Item>
-            <Dropdown.Item
-              onClick={() => {
-                deletePost.mutate({ id });
-              }}
-            >
-              Delete
-            </Dropdown.Item>
+    <div className="relative flex-col overflow-hidden rounded border-[#2d3748] bg-zinc-800 text-white shadow-md">
+      <div className="pt-6 pr-6 pl-6">
+        <div className="flex justify-between">
+          <div className="flex items-center gap-x-3">
+            <Link href={`/user/${author?.username || ""}`}>
+              <Image
+                alt="profile"
+                src={author?.image || defaultPicture.src}
+                height={50}
+                width={50}
+              />
+            </Link>
+            <div>{author?.username}</div>
+          </div>
+          <Dropdown>
+            {session?.user?.id === author?.id ? (
+              <Dropdown.Item
+                onClick={() => {
+                  deletePost.mutate({ id });
+                }}
+              >
+                Delete
+              </Dropdown.Item>
+            ) : (
+              <Dropdown.Item>Block</Dropdown.Item>
+            )}
           </Dropdown>
+          {/* <div>
+            <Dropdown
+              label=""
+              arrowIcon={true}
+              inline={true}
+              dismissOnClick={false}
+            >
+              {session?.user?.id === author?.id ? (
+                <>
+                  <Dropdown.Item>Update</Dropdown.Item>
+                  <Dropdown.Item
+                    onClick={() => {
+                      deletePost.mutate({ id });
+                    }}
+                  >
+                    Delete
+                  </Dropdown.Item>
+                </>
+              ) : (
+                <Dropdown.Item>Block</Dropdown.Item>
+              )}
+            </Dropdown>
+          </div> */}
+        </div>
+        <div className="mt-5 w-full text-white ">
+          <div className="text-3xl">{title}</div>
+          <div className="whitespace-pre-line">{body}</div>
         </div>
       </div>
-      <div className="mt-5 w-full text-white ">
-        <div className="text-3xl">{title}</div>
-        <div>{body}</div>
+      <div className="my-5">
+        {images.length > 0 && <ImageCarousel images={images} />}
       </div>
-      <div>{images.length > 0 && <ImageCarousel images={images} />}</div>
-      <div className="flex gap-x-5">
-        <div className="flex items-center gap-x-2">
-          <button
-            title="up"
-            type="button"
-            onClick={() => {
-              likePost.mutate({ id: id });
-              handleClick(250, true);
-            }}
-          >
-            <FiTrendingUp
-              color="#255bcf"
-              size={30}
-              className={`animate__animated ${
-                isLikePressed ? "animate__heartBeat" : ""
-              }`}
-            />
-          </button>
-          <div>{likes}</div>
-        </div>
-        <div className="flex items-center gap-x-2">
-          <button
-            type="button"
-            title="down"
-            onClick={() => {
-              handleClick(250, false);
-            }}
-          >
-            <FiTrendingDown
-              color="#eb4034"
-              size={30}
-              className={`animate__animated ${
-                isDislikePressed ? "animate__heartBeat" : ""
-              }`}
-            />
-          </button>
-          <div>{comments}</div>
+      <div className="pb-6 pr-6 pl-6">
+        <div className="flex flex-row gap-x-5">
+          <div className="flex items-center gap-x-2">
+            <LikeButton id={id} />
+            <div>{likes}</div>
+          </div>
+          <div className="flex items-center gap-x-2">
+            <DislikeButton id={id} />
+            <div>{comments}</div>
+          </div>
         </div>
       </div>
     </div>
