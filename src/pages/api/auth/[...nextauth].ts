@@ -106,7 +106,17 @@ export const authOptions = (
         return decode({ token, secret });
       },
     },
-
+    cookies: {
+      sessionToken: {
+        name: "next-auth.session-token",
+        options: {
+          httpOnly: true,
+          sameSite: "lax",
+          path: "/",
+          secure: env.NODE_ENV === "production",
+        },
+      },
+    },
     // Configure one or more authentication providers
     secret: env.NEXTAUTH_SECRET,
     debug: true,
