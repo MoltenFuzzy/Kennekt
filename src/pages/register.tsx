@@ -8,7 +8,7 @@ import Link from "next/link";
 import Image from "next/image";
 import logo from "../../images/logo.png";
 import { api } from "../utils/api";
-import { useForm, SubmitHandler } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { unstable_getServerSession } from "next-auth";
 import { authOptions } from "./api/auth/[...nextauth]";
 import { useEffect } from "react";

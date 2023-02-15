@@ -15,9 +15,10 @@ import Post from "../components/Post";
 import React from "react";
 import { createTRPCContext } from "../server/api/trpc";
 import { appRouter } from "../server/api/root";
-import superjson from "superjson";
 import type { CreateNextContextOptions } from "@trpc/server/adapters/next";
 import { api } from "../utils/api";
+import superjson from "superjson";
+import useAppStore from "../stores/app";
 
 const Home: NextPage = () => {
   const { data: sessionData } = useSession();
@@ -27,10 +28,8 @@ const Home: NextPage = () => {
   // );
 
   const posts = api.post.getAll.useQuery();
-
-  // React.useEffect(() => {
-  //   console.log(pageProps);
-  // });
+  // const [userPosts, setUserPosts] = React.useState<typeof posts.data>([]);
+  const { posts: userPosts } = useAppStore((state) => state);
 
   return (
     <>
@@ -44,6 +43,20 @@ const Home: NextPage = () => {
           <div className="col-span-2">
             <div className="container mx-auto  mt-2 grid grid-cols-1 gap-y-4 p-6 sm:p-3">
               <PostForm />
+              {/* Optimistic Updates */}
+              {userPosts?.map((post, index) => (
+                <Post
+                  key={index}
+                  id={post.id}
+                  user={post.author}
+                  session={sessionData}
+                  title={post.title}
+                  body={post.body}
+                  images={post.images}
+                  likes={post.likesCount}
+                  comments={0}
+                />
+              ))}
               {posts.data?.map((post, index) => (
                 <Post
                   key={index}

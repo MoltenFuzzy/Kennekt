@@ -66,12 +66,13 @@ export const postRouter = createTRPCRouter({
             connect: [{ id: image.id }, { id: image2.id }],
           },
         },
+        include: { author: true, images: true },
         // select returns those records
-        select: {
-          id: true,
-          createdAt: true,
-          updatedAt: true,
-        },
+        // select: {
+        //   id: true,
+        //   createdAt: true,
+        //   updatedAt: true,
+        // },
       });
 
       // update image object with post id

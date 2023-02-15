@@ -1,3 +1,4 @@
+import useAppStore from "../stores/app";
 import { api } from "../utils/api";
 import { useForm } from "react-hook-form";
 
@@ -14,15 +15,18 @@ function PostForm() {
     formState: { errors },
   } = useForm<PostSubmitForm>();
 
-  const utils = api.useContext();
+  const { posts, setPosts } = useAppStore((state) => state);
   const createPost = api.post.createOne.useMutation({
-    onSuccess() {
-      void utils.post.getAll.invalidate();
+    onSuccess(newPost) {
+      // void utils.post.getAll.invalidate();
+      console.log(newPost);
+      setPosts([newPost, ...posts]);
     },
   });
 
   const onSubmit = ({ title, body }: PostSubmitForm) => {
     const bodyInput = body.replace(/(?:(?:\r\n|\r|\n)\s*){2}/gm, ""); // removes empty lines
+    // TODO: add images via S3
     createPost.mutate({ title: title, body: bodyInput });
     reset(); // TODO: FIX THIS CUZ ITS BAD
   };

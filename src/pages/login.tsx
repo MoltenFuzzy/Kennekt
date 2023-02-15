@@ -1,15 +1,15 @@
-import {
+import type {
   NextApiRequest,
   NextApiResponse,
-  type GetServerSidePropsContext,
-  type NextPage,
+  GetServerSidePropsContext,
+  NextPage,
 } from "next";
 import Link from "next/link";
-import { signIn, signOut, useSession } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 import Image from "next/image";
 import logo from "../../images/logo.png";
 import { api } from "../utils/api";
-import { useForm, SubmitHandler } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { useEffect } from "react";
 import { unstable_getServerSession } from "next-auth";
 import { authOptions } from "./api/auth/[...nextauth]";
