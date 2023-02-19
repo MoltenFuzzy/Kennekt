@@ -20,29 +20,49 @@ export const imageRouter = createTRPCRouter({
         },
       });
 
-      const s3 = new AWS.S3();
+      const s3 = new AWS.S3({
+        accessKeyId: env.AWS_ACCESS_KEY_ID,
+        secretAccessKey: env.AWS_SECRET_ACCESS_KEY,
+        region: env.AWS_REGION,
+        signatureVersion: "v4",
+      }); // TODO: extract this to an export
 
       return new Promise<PresignedPost>((resolve, reject) => {
-        s3.createPresignedPost(
-          {
-            Fields: {
-              key: `${ctx.session.user.id}/${image.id}`,
-            },
-            Conditions: [
-              ["content-length-range", 0, 1048576],
-              ["starts-with", "$Content-Type", "image/"],
-            ],
-            Expires: 3600,
-            Bucket: env.AWS_BUCKET_NAME,
+        const params = {
+          Bucket: env.AWS_BUCKET_NAME,
+          Fields: {
+            key: `${ctx.session.user.id}/${image.id}`,
           },
-          (err, data) => {
-            if (err) {
-              reject(err);
-            } else {
-              resolve(data);
-            }
-          }
-        );
+          Expires: 3600,
+          Conditions: [
+            ["content-length-range", 0, 10000000], // 10 Mb
+            { acl: "public-read" },
+          ],
+        };
+        s3.createPresignedPost(params, (err, data) => {
+          resolve(data);
+        });
+
+        // s3.createPresignedPost(
+        //   {
+        //     Fields: {
+        //       key: `${ctx.session.user.id}/${image.id}`,
+        //     },
+        //     Conditions: [
+        //       ["content-length-range", 0, 10000000], // 10 Mb
+        //       { acl: "public-read" },
+        //     ],
+        //     Expires: 3600,
+        //     Bucket: env.AWS_BUCKET_NAME,
+        //   },
+        //   (err, data) => {
+        //     if (err) {
+        //       reject(err);
+        //     } else {
+        //       resolve(data);
+        //     }
+        //   }
+        // );
       });
 
       // const s3 = new S3Client({

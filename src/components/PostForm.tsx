@@ -4,8 +4,7 @@ import type { FullPost } from "../types/types";
 import { api } from "../utils/api";
 import { useForm } from "react-hook-form";
 import Image from "next/image";
-import AWS from "aws-sdk";
-import { env } from "../env/client.mjs";
+import fs from "fs";
 
 type PostSubmitForm = {
   title: string;
@@ -29,8 +28,8 @@ function PostForm() {
     },
   });
 
-  // const { mutateAsync: createPresignedUrl } =
-  //   api.image.createPresignedUrl.useMutation();
+  const { mutateAsync: createPresignedUrl } =
+    api.image.createPresignedUrl.useMutation();
 
   const onSubmit = ({ title, body }: PostSubmitForm) => {
     const bodyInput = body.replace(/(?:(?:\r\n|\r|\n)\s*){2}/gm, ""); // removes empty lines
@@ -57,12 +56,25 @@ function PostForm() {
     void uploadImage();
   };
 
-  const uploadImage = () => {
-    // const { url } = await createPresignedUrl({});
-    // await fetch(url, {
-    //   method: "PUT",
-    //   body: images[0],
-    // });
+  const uploadImage = async () => {
+    const { url, fields } = await createPresignedUrl({});
+
+    const form = new FormData();
+    form.append("acl", "public-read");
+    Object.keys(fields).forEach((key) => {
+      form.append(key, fields[key]);
+    });
+    form.append("file", images[0] as Blob);
+
+    await fetch(url, {
+      method: "POST",
+      body: form,
+      headers: {
+        "Content-Type": "multipart/form-data",
+        "Content-Length": String(Array.from(form).length),
+      },
+    });
+
     // const test = await getPresignedUrl({
     //   fileKeys: images.map((image) => image.name),
     // });
