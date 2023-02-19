@@ -23,6 +23,10 @@ export const serverSchema = z.object({
   DISCORD_CLIENT_SECRET: z.string(),
   GOOGLE_CLIENT_ID: z.string(),
   GOOGLE_CLIENT_SECRET: z.string(),
+  AWS_REGION: z.string(),
+  AWS_BUCKET_NAME: z.string(),
+  AWS_ACCESS_KEY_ID: z.string(),
+  AWS_SECRET_ACCESS_KEY: z.string(),
 });
 
 /**
@@ -32,4 +36,8 @@ export const serverSchema = z.object({
  */
 export const clientSchema = z.object({
   // NEXT_PUBLIC_CLIENTVAR: z.string(),
+  // NEXT_PUBLIC_AWS_REGION: z.string(),
+  // NEXT_PUBLIC_AWS_BUCKET_NAME: z.string(),
+  // NEXT_PUBLIC_AWS_ACCESS_KEY_ID: z.string(),
+  // NEXT_PUBLIC_AWS_SECRET_ACCESS_KEY: z.string(),
 });

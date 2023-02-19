@@ -1,4 +1,8 @@
 import { z } from "zod";
+import type { S3ClientConfig } from "@aws-sdk/client-s3";
+import { S3Client, GetObjectCommand } from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { createPresignedPost } from "@aws-sdk/s3-presigned-post";
 
 import { createTRPCRouter, publicProcedure, protectedProcedure } from "../trpc";
 import { TRPCError } from "@trpc/server";
@@ -39,7 +43,13 @@ export const postRouter = createTRPCRouter({
     });
   }),
   createOne: protectedProcedure
-    .input(z.object({ title: z.string(), body: z.string() }))
+    .input(
+      z.object({
+        title: z.string(),
+        body: z.string(),
+        images: z.array(z.string()),
+      })
+    )
     .mutation(async ({ ctx, input }) => {
       // create image object
       const image = await ctx.prisma.image.create({

@@ -41,9 +41,8 @@ const Home: NextPage = () => {
           )}
           <div className="col-span-1 hidden text-center text-white lg:block "></div>
           <div className="col-span-2">
-            <div className="container mx-auto  mt-2 grid grid-cols-1 gap-y-4 p-6 sm:p-3">
+            <div className="container mx-auto mt-2 grid grid-cols-1 gap-y-4 p-6 sm:p-0 sm:pl-8 sm:pt-2">
               <PostForm />
-              {/* Optimistic Updates */}
               {userPosts?.map((post, index) => (
                 <Post
                   key={index}

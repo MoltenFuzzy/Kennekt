@@ -1,11 +1,6 @@
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
-import type { Post, Image, User } from ".prisma/client";
-
-type FullPost = Post & {
-  images: Image[];
-  author: User;
-};
+import type { FullPost } from "../types/types";
 
 interface AppState {
   posts: FullPost[];
