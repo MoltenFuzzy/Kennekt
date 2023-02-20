@@ -4,11 +4,14 @@ import type { FullPost } from "../types/types";
 import { api } from "../utils/api";
 import { useForm } from "react-hook-form";
 import Image from "next/image";
-import fs from "fs";
 
 type PostSubmitForm = {
   title: string;
   body: string;
+};
+
+type Field = {
+  [key: string]: string | Blob;
 };
 
 function PostForm() {
@@ -53,26 +56,27 @@ function PostForm() {
     });
     setImages([]); // Empty the images array upon submit
     reset(); // TODO: FIX THIS CUZ ITS BAD
-    void uploadImage();
+    if (filesArray.length > 0) {
+      void uploadImage();
+    }
   };
 
   const uploadImage = async () => {
-    const { url, fields } = await createPresignedUrl({});
+    const { url, fields }: { url: string; fields: Field } =
+      await createPresignedUrl({});
 
-    const form = new FormData();
-    form.append("acl", "public-read");
+    const formData = new FormData();
+
+    // this is weird but it has to start with content-type for some reason
+    formData.append("Content-Type", images[0]?.type || "");
     Object.keys(fields).forEach((key) => {
-      form.append(key, fields[key]);
+      formData.append(key, fields[key] as string | Blob);
     });
-    form.append("file", images[0] as Blob);
+    formData.append("file", images[0] as Blob);
 
     await fetch(url, {
       method: "POST",
-      body: form,
-      headers: {
-        "Content-Type": "multipart/form-data",
-        "Content-Length": String(Array.from(form).length),
-      },
+      body: formData,
     });
 
     // const test = await getPresignedUrl({

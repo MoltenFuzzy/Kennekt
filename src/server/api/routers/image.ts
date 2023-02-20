@@ -24,7 +24,6 @@ export const imageRouter = createTRPCRouter({
         accessKeyId: env.AWS_ACCESS_KEY_ID,
         secretAccessKey: env.AWS_SECRET_ACCESS_KEY,
         region: env.AWS_REGION,
-        signatureVersion: "v4",
       }); // TODO: extract this to an export
 
       return new Promise<PresignedPost>((resolve, reject) => {
@@ -34,9 +33,11 @@ export const imageRouter = createTRPCRouter({
             key: `${ctx.session.user.id}/${image.id}`,
           },
           Expires: 3600,
+          ContentType: "image/*",
           Conditions: [
+            // { acl: "public-read" },
+            ["starts-with", "$Content-Type", "image/"],
             ["content-length-range", 0, 10000000], // 10 Mb
-            { acl: "public-read" },
           ],
         };
         s3.createPresignedPost(params, (err, data) => {
