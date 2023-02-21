@@ -107,6 +107,7 @@ model Image {
     encoding  String?
     userId    String
     user      User     @relation(fields: [userId], references: [id])
+    // post is optional because it can be a profile image
     postId    String?
     post      Post?    @relation(fields: [postId], references: [id], onDelete: Cascade)
     createdAt DateTime @default(now())

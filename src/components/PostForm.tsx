@@ -36,7 +36,6 @@ function PostForm() {
 
   const onSubmit = ({ title, body }: PostSubmitForm) => {
     const bodyInput = body.replace(/(?:(?:\r\n|\r|\n)\s*){2}/gm, ""); // removes empty lines
-    console.log(fileInputRef.current?.files);
 
     // instead of optional, we use an empty array
     const filesArray = Array.from(fileInputRef.current?.files || []);
@@ -49,21 +48,30 @@ function PostForm() {
 
     const imageURLs = filesArray.map((file) => URL.createObjectURL(file));
 
-    createPost.mutate({
-      title: title,
-      body: bodyInput,
-      images: imageURLs,
-    });
-    setImages([]); // Empty the images array upon submit
-    reset(); // TODO: FIX THIS CUZ ITS BAD
-    if (filesArray.length > 0) {
-      void uploadImage();
-    }
+    createPost.mutate(
+      {
+        title: title,
+        body: bodyInput,
+        images: imageURLs,
+      },
+      {
+        onSuccess: (post) => {
+          // TODO: pass image id
+          setImages([]); // Empty the images array upon submit
+          reset(); // TODO: FIX THIS CUZ ITS BAD
+          if (filesArray.length > 0) void uploadImage(post.id);
+        },
+        onError: (error) => {
+          console.log(error);
+          // TODO: show error to user
+        },
+      }
+    );
   };
 
-  const uploadImage = async () => {
+  const uploadImage = async (postId: string) => {
     const { url, fields }: { url: string; fields: Field } =
-      await createPresignedUrl({});
+      await createPresignedUrl({ postId });
 
     const formData = new FormData();
 
@@ -78,6 +86,36 @@ function PostForm() {
       method: "POST",
       body: formData,
     });
+
+    // const { url, fields }: { url: string; fields: Field } =
+    //   await createPresignedUrl({
+    //     postId,
+    //     images: images.map((image) => image.name),
+    //   });
+
+    // const test = await createPresignedUrl({
+    //   postId,
+    //   images: images.map((image) => image.name),
+    // });
+
+    // test.forEach(
+    //   (async (thing) => {
+    //     const formData = new FormData();
+    //   })()
+    // );
+
+    // const formData = new FormData();
+    // // this is weird but it has to start with content-type for some reason
+    // formData.append("Content-Type", images[0]?.type || "");
+    // Object.keys(fields).forEach((key) => {
+    //   formData.append(key, fields[key] as string | Blob);
+    // });
+    // formData.append("file", images[0] as Blob);
+
+    // await fetch(url, {
+    //   method: "POST",
+    //   body: formData,
+    // });
 
     // const test = await getPresignedUrl({
     //   fileKeys: images.map((image) => image.name),
@@ -108,9 +146,9 @@ function PostForm() {
     }
   };
 
-  useEffect(() => {
-    console.log(images);
-  });
+  // useEffect(() => {
+  //   console.log(images);
+  // });
 
   return (
     <>
