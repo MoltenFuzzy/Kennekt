@@ -25,11 +25,7 @@ const config = {
       },
       {
         protocol: "https",
-        hostname: "picsum.photos",
-      },
-      {
-        protocol: "https",
-        hostname: "mdbootstrap.com",
+        hostname: "kennekt-bucket.s3.us-west-1.amazonaws.com",
       },
     ],
   },

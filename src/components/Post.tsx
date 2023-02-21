@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Image from "next/image";
 import type { User, Image as ImageType } from "@prisma/client";
 import type { Session } from "next-auth";
@@ -17,7 +17,7 @@ interface PostProps {
   session: Session | null;
   title: string;
   body: string;
-  images: ImageType[];
+  // images: ImageType[];
   likes: number;
   comments: number;
 }
@@ -28,7 +28,7 @@ function Post({
   session,
   title,
   body,
-  images,
+  // images,
   likes,
   comments,
 }: PostProps) {
@@ -38,6 +38,14 @@ function Post({
       void utils.post.invalidate();
     },
   });
+
+  const getImages = api.image.getAllForPost.useQuery({
+    postId: id,
+  });
+
+  useEffect(() => {
+    console.log(getImages.data);
+  }, [getImages.data]);
 
   return (
     <div className="relative flex-col overflow-hidden rounded border-[#2d3748] bg-zinc-800 text-white shadow-md">
@@ -97,7 +105,8 @@ function Post({
         </div>
       </div>
       <div className="my-5">
-        {images.length > 0 && <ImageCarousel images={images} />}
+        {/* {getImages.data && getImages.data.map((image) => <img src={image} />)} */}
+        {getImages.data && <ImageCarousel images={getImages.data} />}
       </div>
       <div className="pb-6 pr-6 pl-6">
         <div className="flex flex-row gap-x-5">

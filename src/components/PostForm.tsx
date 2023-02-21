@@ -70,74 +70,28 @@ function PostForm() {
   };
 
   const uploadImage = async (postId: string) => {
-    const { url, fields }: { url: string; fields: Field } =
-      await createPresignedUrl({ postId });
-
-    const formData = new FormData();
-
-    // this is weird but it has to start with content-type for some reason
-    formData.append("Content-Type", images[0]?.type || "");
-    Object.keys(fields).forEach((key) => {
-      formData.append(key, fields[key] as string | Blob);
-    });
-    formData.append("file", images[0] as Blob);
-
-    await fetch(url, {
-      method: "POST",
-      body: formData,
+    const presignedPosts = await createPresignedUrl({
+      postId,
+      images: images.map((image) => image.name),
     });
 
-    // const { url, fields }: { url: string; fields: Field } =
-    //   await createPresignedUrl({
-    //     postId,
-    //     images: images.map((image) => image.name),
-    //   });
+    // post all images to s3
+    await Promise.all(
+      presignedPosts.map(async (presignedPost, index) => {
+        const formData = new FormData();
+        // this is weird but it has to start with content-type for some reason
+        formData.append("Content-Type", images[index]?.type || "");
+        Object.keys(presignedPost.fields).forEach((key) => {
+          formData.append(key, presignedPost.fields[key] as string | Blob);
+        });
+        formData.append("file", images[index] as Blob);
 
-    // const test = await createPresignedUrl({
-    //   postId,
-    //   images: images.map((image) => image.name),
-    // });
-
-    // test.forEach(
-    //   (async (thing) => {
-    //     const formData = new FormData();
-    //   })()
-    // );
-
-    // const formData = new FormData();
-    // // this is weird but it has to start with content-type for some reason
-    // formData.append("Content-Type", images[0]?.type || "");
-    // Object.keys(fields).forEach((key) => {
-    //   formData.append(key, fields[key] as string | Blob);
-    // });
-    // formData.append("file", images[0] as Blob);
-
-    // await fetch(url, {
-    //   method: "POST",
-    //   body: formData,
-    // });
-
-    // const test = await getPresignedUrl({
-    //   fileKeys: images.map((image) => image.name),
-    // });
-    // console.log(test);
-    // const test2 = test.map((url) => {
-    //   return fetch(url.url, {
-    //     method: "POST",
-    //     headers: {
-    //       "Content-Type": "image/jpeg",
-    //     },
-    //   });
-    // });
-    // if (!test[0]) return;
-    // const res = await fetch(test[0].url, {
-    //   method: "PUT",
-    //   body: images[0],
-    //   headers: {
-    //     "Content-Type": images[0]?.type || "",
-    //     "x-amz-acl": "public-read",
-    //   },
-    // });
+        await fetch(presignedPost.url, {
+          method: "POST",
+          body: formData,
+        });
+      })
+    );
   };
 
   const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {

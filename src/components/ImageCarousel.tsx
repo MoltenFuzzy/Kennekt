@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from "react";
-import type { Image as ImageType } from "@prisma/client";
 import { default as NextImage } from "next/image";
 
 interface ImageCarouselProps {
-  images: ImageType[];
+  images: string[];
 }
 
 const ImageCarousel: React.FC<ImageCarouselProps> = ({ images }) => {
@@ -36,8 +35,8 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({ images }) => {
       </button>
 
       <NextImage
-        src={images[selectedIndex]?.url || ""}
-        alt={images[selectedIndex]?.filename || ""}
+        src={images[selectedIndex] || ""}
+        alt={images[selectedIndex] || ""}
         className={`w-full ${
           true
             ? "h-64 object-cover object-center"

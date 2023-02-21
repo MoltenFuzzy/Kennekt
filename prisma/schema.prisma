@@ -101,7 +101,7 @@ model Post {
 
 model Image {
     id        String   @id @default(cuid())
-    url       String?
+    // url       String?
     filename  String?
     mimetype  String?
     encoding  String?

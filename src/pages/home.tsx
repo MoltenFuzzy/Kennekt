@@ -28,6 +28,7 @@ const Home: NextPage = () => {
   // );
 
   const posts = api.post.getAll.useQuery();
+  // const imageUrls = api.image.getAllForPost.useQuery();
   // const [userPosts, setUserPosts] = React.useState<typeof posts.data>([]);
   const { posts: userPosts } = useAppStore((state) => state);
 
@@ -43,7 +44,8 @@ const Home: NextPage = () => {
           <div className="col-span-2">
             <div className="container mx-auto mt-2 grid grid-cols-1 gap-y-4 p-6 sm:p-0 sm:pl-8 sm:pt-2">
               <PostForm />
-              {userPosts?.map((post, index) => (
+              {/* When the user posts, they see their own posts first (Optimistic Updates) */}
+              {/* {userPosts?.map((post, index) => (
                 <Post
                   key={index}
                   id={post.id}
@@ -51,11 +53,10 @@ const Home: NextPage = () => {
                   session={sessionData}
                   title={post.title}
                   body={post.body}
-                  images={post.images}
                   likes={post.likesCount}
                   comments={0}
                 />
-              ))}
+              ))} */}
               {posts.data?.map((post, index) => (
                 <Post
                   key={index}
@@ -64,7 +65,6 @@ const Home: NextPage = () => {
                   session={sessionData}
                   title={post.title}
                   body={post.body}
-                  images={post.images}
                   likes={post.likesCount}
                   comments={0}
                 />
@@ -131,7 +131,10 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
    * `prefetch` does not return the result and never throws - if you need that behavior, use `fetch` instead.
    */
   // await ssg.post.byId.prefetch({ id });
-  await ssg.post.getAll.prefetch();
+  const test = await ssg.post.getAll.fetch();
+  test.map(async (post) => {
+    await ssg.image.getAllForPost.prefetch({ postId: post.id });
+  });
 
   return {
     props: { trpcState: ssg.dehydrate(), session },
