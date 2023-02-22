@@ -101,7 +101,9 @@ model Post {
 
 model Image {
     id        String   @id @default(cuid())
-    // url       String?
+    // image urls are not stored in the database because presigned urls expire, 
+    // instead we fetch the image from s3 and assign it when the api endpoint is called
+    url       String?
     filename  String?
     mimetype  String?
     encoding  String?

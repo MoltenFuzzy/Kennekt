@@ -17,7 +17,7 @@ interface PostProps {
   session: Session | null;
   title: string;
   body: string;
-  // images: ImageType[];
+  images: ImageType[];
   likes: number;
   comments: number;
 }
@@ -28,7 +28,7 @@ function Post({
   session,
   title,
   body,
-  // images,
+  images,
   likes,
   comments,
 }: PostProps) {
@@ -39,13 +39,13 @@ function Post({
     },
   });
 
-  const getImages = api.image.getAllForPost.useQuery({
-    postId: id,
-  });
+  // const getImages = api.image.getAllForPost.useQuery({
+  //   postId: id,
+  // });
 
   useEffect(() => {
-    console.log(getImages.data);
-  }, [getImages.data]);
+    console.log(images);
+  });
 
   return (
     <div className="relative flex-col overflow-hidden rounded border-[#2d3748] bg-zinc-800 text-white shadow-md">
@@ -106,7 +106,7 @@ function Post({
       </div>
       <div className="my-5">
         {/* {getImages.data && getImages.data.map((image) => <img src={image} />)} */}
-        {getImages.data && <ImageCarousel images={getImages.data} />}
+        {images && <ImageCarousel images={images} />}
       </div>
       <div className="pb-6 pr-6 pl-6">
         <div className="flex flex-row gap-x-5">

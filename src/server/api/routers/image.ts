@@ -15,6 +15,7 @@ export const imageRouter = createTRPCRouter({
       const bucketObjects = await s3
         .listObjectsV2({
           Bucket: env.AWS_BUCKET_NAME,
+          // TODO: BUG - this only works for the current user and not others due to session
           Prefix: `${ctx.session.user.id}/${input.postId}/`,
         })
         .promise();

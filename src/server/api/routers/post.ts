@@ -1,11 +1,11 @@
 import { z } from "zod";
-import type { S3ClientConfig } from "@aws-sdk/client-s3";
-import { S3Client, GetObjectCommand } from "@aws-sdk/client-s3";
-import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
-import { createPresignedPost } from "@aws-sdk/s3-presigned-post";
+import { env } from "../../../env/server.mjs";
 
 import { createTRPCRouter, publicProcedure, protectedProcedure } from "../trpc";
 import { TRPCError } from "@trpc/server";
+import type { PromiseResult } from "aws-sdk/lib/request.js";
+import type { S3, AWSError } from "aws-sdk";
+import s3 from "../../s3";
 
 export const postRouter = createTRPCRouter({
   getOne: publicProcedure
@@ -34,14 +34,43 @@ export const postRouter = createTRPCRouter({
         include: { author: true, images: true },
       });
     }),
-  getAll: publicProcedure.query(({ ctx }) => {
-    return ctx.prisma.post.findMany({
+  getAll: publicProcedure.query(async ({ ctx }) => {
+    const posts = await ctx.prisma.post.findMany({
       take: 10,
       orderBy: {
         createdAt: "desc",
       },
       include: { author: true, images: true },
     });
+
+    // loop through posts and get signed urls for each image
+    // then add the url to each image object in each post(NOTE: not stored in db)
+    for (const post of posts) {
+      let urls: (string | undefined)[] | undefined = [];
+      for (const image of post.images) {
+        const bucketObjects = await s3
+          .listObjectsV2({
+            Bucket: env.AWS_BUCKET_NAME,
+            Prefix: `${image.userId}/${image?.postId || ""}/`,
+          })
+          .promise();
+
+        urls = bucketObjects.Contents?.map((content) => {
+          if (content.Key) {
+            const url = s3.getSignedUrl("getObject", {
+              Bucket: env.AWS_BUCKET_NAME,
+              Key: content.Key,
+              Expires: 3600,
+            });
+            return url;
+          }
+        });
+      }
+      post.images.forEach((image, index) => {
+        image.url = urls?.at(index) as string;
+      });
+    }
+    return posts;
   }),
   createOne: protectedProcedure
     .input(
