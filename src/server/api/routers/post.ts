@@ -4,7 +4,7 @@ import AWS from "aws-sdk";
 
 import { createTRPCRouter, publicProcedure, protectedProcedure } from "../trpc";
 import { TRPCError } from "@trpc/server";
-// import s3 from "../../s3";
+import s3 from "../../s3";
 
 export const postRouter = createTRPCRouter({
   getOne: publicProcedure
@@ -40,12 +40,6 @@ export const postRouter = createTRPCRouter({
         createdAt: "desc",
       },
       include: { author: true, images: true },
-    });
-
-    const s3 = new AWS.S3({
-      accessKeyId: env.AWS_ACCESS_KEY_ID,
-      secretAccessKey: env.AWS_SECRET_ACCESS_KEY,
-      region: env.AWS_REGION,
     });
 
     // loop through posts and get signed urls for each image
