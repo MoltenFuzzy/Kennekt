@@ -4,13 +4,7 @@ import AWS from "aws-sdk";
 
 import { createTRPCRouter, publicProcedure, protectedProcedure } from "../trpc";
 import { TRPCError } from "@trpc/server";
-<<<<<<< HEAD
 // import s3 from "../../s3";
-=======
-import type { PromiseResult } from "aws-sdk/lib/request.js";
-import type { S3, AWSError } from "aws-sdk";
-import s3 from "../../s3";
->>>>>>> parent of bbb0ae4 (remove unused imports)
 
 export const postRouter = createTRPCRouter({
   getOne: publicProcedure
