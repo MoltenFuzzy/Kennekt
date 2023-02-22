@@ -3,8 +3,6 @@ import { env } from "../../../env/server.mjs";
 
 import { createTRPCRouter, publicProcedure, protectedProcedure } from "../trpc";
 import { TRPCError } from "@trpc/server";
-import type { PromiseResult } from "aws-sdk/lib/request.js";
-import type { S3, AWSError } from "aws-sdk";
 import s3 from "../../s3";
 
 export const postRouter = createTRPCRouter({
