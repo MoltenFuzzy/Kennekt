@@ -3,6 +3,7 @@ import useAppStore from "../stores/app";
 import type { FullPost } from "../types/types";
 import { api } from "../utils/api";
 import { useForm } from "react-hook-form";
+import { Image as ImageType } from "@prisma/client";
 import Image from "next/image";
 
 type PostSubmitForm = {
@@ -10,13 +11,16 @@ type PostSubmitForm = {
   body: string;
 };
 
-type Field = {
-  [key: string]: string | Blob;
-};
+// type Field = {
+//   [key: string]: string | Blob;
+// };
 
 function PostForm() {
+  const util = api.useContext();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { posts, setPosts } = useAppStore((state) => state);
+  const { posts, setPosts, setPostsOptimisticUpdateApplied } = useAppStore(
+    (state) => state
+  );
   const [images, setImages] = useState<File[]>([]);
   const {
     register,
@@ -25,11 +29,7 @@ function PostForm() {
     formState: { errors },
   } = useForm<PostSubmitForm>();
 
-  const createPost = api.post.createOne.useMutation({
-    onSuccess(newPost) {
-      setPosts([newPost as FullPost, ...posts]);
-    },
-  });
+  const createPost = api.post.createOne.useMutation({});
 
   const { mutateAsync: createPresignedUrl } =
     api.image.createPresignedUrl.useMutation();
@@ -46,24 +46,37 @@ function PostForm() {
       }
     });
 
-    const imageURLs = filesArray.map((file) => URL.createObjectURL(file));
-
     createPost.mutate(
       {
         title: title,
         body: bodyInput,
-        images: imageURLs,
       },
       {
         onSuccess: (post) => {
-          // TODO: pass image id
+          filesArray.forEach((file) => {
+            // dummy image object for optimistic ui updates
+            const image: ImageType = {
+              id: "",
+              url: URL.createObjectURL(file as Blob),
+              filename: null,
+              mimetype: null,
+              encoding: null,
+              postId: post.id,
+              userId: "",
+              createdAt: new Date(),
+              updatedAt: new Date(),
+            };
+            post.images.push(image);
+          });
+          setPosts([post as FullPost, ...posts]);
+          setPostsOptimisticUpdateApplied(true);
           setImages([]); // Empty the images array upon submit
           reset(); // TODO: FIX THIS CUZ ITS BAD
           if (filesArray.length > 0) void uploadImage(post.id);
         },
         onError: (error) => {
-          console.log(error);
           // TODO: show error to user
+          console.log(error);
         },
       }
     );

@@ -3,7 +3,6 @@ import type {
   InferGetServerSidePropsType,
   NextApiRequest,
   NextApiResponse,
-  NextPage,
 } from "next";
 import { signOut, useSession } from "next-auth/react";
 import { createProxySSGHelpers } from "@trpc/react-query/ssg";
@@ -13,7 +12,7 @@ import { authOptions } from "./api/auth/[...nextauth]";
 import Modal from "../components/Modal";
 import PostForm from "../components/PostForm";
 import Post from "../components/Post";
-import React from "react";
+import React, { useEffect } from "react";
 import { createTRPCContext } from "../server/api/trpc";
 import { appRouter } from "../server/api/root";
 import type { CreateNextContextOptions } from "@trpc/server/adapters/next";
@@ -66,16 +65,25 @@ export default function Home(
   props: InferGetServerSidePropsType<typeof getServerSideProps>
 ) {
   const { data: sessionData } = useSession();
-  // const { data: secretMessage } = api.example.getSecretMessage.useQuery(
-  //   undefined, // no input
-  //   { enabled: sessionData?.user !== undefined }
-  // );
+  const { data: postsData } = api.post.getAll.useQuery(undefined, {
+    enabled: true,
+  });
+  const {
+    posts: userPosts,
+    setPosts,
+    postsOptimisticUpdateApplied,
+  } = useAppStore((state) => state);
 
-  const {} = props;
-
-  const posts = api.post.getAll.useQuery();
-  // const [userPosts, setUserPosts] = React.useState<typeof posts.data>([]);
-  const { posts: userPosts } = useAppStore((state) => state);
+  useEffect(() => {
+    // I want userPosts to be updated with the refetched postsData when the user tabs out of the page
+    // the refetched postsData will have the new post from the current user
+    if (postsData) {
+      if (!postsOptimisticUpdateApplied) {
+        // set the posts to the store, since we are using the store to display the posts
+        setPosts(postsData);
+      }
+    }
+  }, [postsData, postsOptimisticUpdateApplied, setPosts]);
 
   return (
     <>
@@ -89,21 +97,7 @@ export default function Home(
           <div className="col-span-2">
             <div className="container mx-auto mt-2 grid grid-cols-1 gap-y-4 p-6 sm:p-0 sm:pl-8 sm:pt-2">
               <PostForm />
-              {/* When the user posts, they see their own posts first (Optimistic Updates) */}
-              {/* BUG: Sometimes shows two posts??? */}
-              {/* {userPosts?.map((post, index) => (
-                <Post
-                  key={index}
-                  id={post.id}
-                  user={post.author}
-                  session={sessionData}
-                  title={post.title}
-                  body={post.body}
-                  likes={post.likesCount}
-                  comments={0}
-                />
-              ))} */}
-              {posts.data?.map((post, index) => (
+              {userPosts.map((post, index) => (
                 <Post
                   key={index}
                   id={post.id}
@@ -119,7 +113,7 @@ export default function Home(
             </div>
           </div>
           <div className="col-span-1 hidden flex-none sm:block">
-            <div className="fixed right-0 flex h-screen justify-center bg-[#202023] text-center text-white sm:w-[28%] lg:w-[20%] xl:w-[18%] 2xl:w-[15%]">
+            <div className="fixed right-0 flex h-screen justify-center  bg-[#202023] text-center text-white sm:w-[28%] lg:w-[20%] xl:w-[18%] 2xl:w-[15%]">
               {sessionData && (
                 <button
                   onClick={() => {
@@ -130,7 +124,7 @@ export default function Home(
                     }
                   }}
                   type="button"
-                  className="h-10 rounded-lg bg-gradient-to-r from-teal-400 via-teal-500 to-teal-600 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-gradient-to-br focus:outline-none focus:ring-4 focus:ring-teal-300 dark:focus:ring-teal-800"
+                  className="mt-10 h-10 rounded-lg bg-gradient-to-r from-teal-400 via-teal-500 to-teal-600 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-gradient-to-br focus:outline-none focus:ring-4 focus:ring-teal-300 dark:focus:ring-teal-800"
                 >
                   Sign Out
                 </button>

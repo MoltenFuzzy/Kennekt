@@ -39,14 +39,6 @@ function Post({
     },
   });
 
-  // const getImages = api.image.getAllForPost.useQuery({
-  //   postId: id,
-  // });
-
-  useEffect(() => {
-    console.log(images);
-  });
-
   return (
     <div className="relative flex-col overflow-hidden rounded border-[#2d3748] bg-zinc-800 text-white shadow-md">
       <div className="pt-6 pr-6 pl-6">
@@ -106,7 +98,7 @@ function Post({
       </div>
       <div className="my-5">
         {/* {getImages.data && getImages.data.map((image) => <img src={image} />)} */}
-        {images && <ImageCarousel images={images} />}
+        {images.length > 0 && <ImageCarousel images={images} />}
       </div>
       <div className="pb-6 pr-6 pl-6">
         <div className="flex flex-row gap-x-5">

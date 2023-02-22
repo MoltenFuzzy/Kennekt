@@ -1,15 +1,14 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: [
-    "./src/**/*.{js,ts,jsx,tsx}",
-  ],
+  content: ["./src/**/*.{js,ts,jsx,tsx}"],
   theme: {
     extend: {
       fontFamily: {
         sora: ["Sora", "sans-serif"],
         libre: ["Libre Baskerville"],
       },
-      colors: {},
+      colors: {
+      },
       minWidth: {
         "1/4": "25%",
         "1/2": "50%",

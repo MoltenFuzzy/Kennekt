@@ -77,7 +77,6 @@ export const postRouter = createTRPCRouter({
       z.object({
         title: z.string(),
         body: z.string(),
-        images: z.array(z.string()),
       })
     )
     .mutation(({ ctx, input }) => {
