@@ -1,7 +1,5 @@
 import { z } from "zod";
 import { env } from "../../../env/server.mjs";
-import AWS from "aws-sdk";
-
 import { createTRPCRouter, publicProcedure, protectedProcedure } from "../trpc";
 import { TRPCError } from "@trpc/server";
 import s3 from "../../s3";
