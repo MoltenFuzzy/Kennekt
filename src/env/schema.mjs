@@ -36,8 +36,4 @@ export const serverSchema = z.object({
  */
 export const clientSchema = z.object({
   // NEXT_PUBLIC_CLIENTVAR: z.string(),
-  // NEXT_PUBLIC_AWS_REGION: z.string(),
-  // NEXT_PUBLIC_AWS_BUCKET_NAME: z.string(),
-  // NEXT_PUBLIC_AWS_ACCESS_KEY_ID: z.string(),
-  // NEXT_PUBLIC_AWS_SECRET_ACCESS_KEY: z.string(),
 });
