@@ -2,7 +2,7 @@ import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import type { PresignedPost } from "@aws-sdk/s3-presigned-post";
 import { env } from "../../../env/server.mjs";
-import s3 from "../../s3";
+import AWS from "aws-sdk";
 
 export const imageRouter = createTRPCRouter({
   getAllForPost: protectedProcedure
@@ -12,6 +12,12 @@ export const imageRouter = createTRPCRouter({
       })
     )
     .query(async ({ ctx, input }) => {
+      const s3 = new AWS.S3({
+        accessKeyId: env.AWS_ACCESS_KEY_ID,
+        secretAccessKey: env.AWS_SECRET_ACCESS_KEY,
+        region: env.AWS_REGION,
+      });
+
       const bucketObjects = await s3
         .listObjectsV2({
           Bucket: env.AWS_BUCKET_NAME,
@@ -97,6 +103,13 @@ export const imageRouter = createTRPCRouter({
             ["content-length-range", 0, 10000000], // 10 Mb
           ],
         };
+
+        const s3 = new AWS.S3({
+          accessKeyId: env.AWS_ACCESS_KEY_ID,
+          secretAccessKey: env.AWS_SECRET_ACCESS_KEY,
+          region: env.AWS_REGION,
+        });
+
         const presignedPost = new Promise<PresignedPost>((resolve, reject) => {
           s3.createPresignedPost(params, (err, data) => {
             if (err) {
