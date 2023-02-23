@@ -53,8 +53,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
    * `prefetch` does not return the result and never throws - if you need that behavior, use `fetch` instead.
    */
   // await ssg.post.byId.prefetch({ id });
-  const test = await ssg.post.getAll.fetch();
-  console.log(test);
+  await ssg.post.getAll.fetch();
 
   return {
     props: { trpcState: ssg.dehydrate(), session },

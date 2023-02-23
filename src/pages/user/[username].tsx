@@ -19,6 +19,54 @@ import Post from "../../components/Post";
 import { useSession } from "next-auth/react";
 import Navbar from "../../components/NavBar";
 
+export async function getServerSideProps(context: GetServerSidePropsContext) {
+  const session = await unstable_getServerSession(
+    context.req,
+    context.res,
+    authOptions(context.req as NextApiRequest, context.res as NextApiResponse)
+  );
+
+  if (!session) {
+    return {
+      redirect: {
+        destination: "/",
+        permanent: false,
+      },
+    };
+  }
+
+  const ssg = createProxySSGHelpers({
+    router: appRouter,
+    ctx: await createTRPCContext({
+      req: context.req as NextApiRequest,
+      res: context.res as NextApiResponse,
+    }),
+    transformer: superjson,
+  });
+
+  try {
+    await ssg.user.getOne.fetch(context.query);
+    await ssg.post.getAllFromUser.prefetch({
+      username: context.query.username as string,
+    });
+  } catch (error) {
+    return {
+      redirect: {
+        // TODO: Either redirect to home or go to 404
+        destination: "/404",
+        permanent: false,
+      },
+    };
+  }
+
+  return {
+    props: {
+      trpcState: ssg.dehydrate(),
+      session,
+    },
+  };
+}
+
 const Profile: NextPage = () => {
   const router = useRouter();
 
@@ -75,51 +123,3 @@ const Profile: NextPage = () => {
 };
 
 export default Profile;
-
-export async function getServerSideProps(context: GetServerSidePropsContext) {
-  const session = await unstable_getServerSession(
-    context.req,
-    context.res,
-    authOptions(context.req as NextApiRequest, context.res as NextApiResponse)
-  );
-
-  if (!session) {
-    return {
-      redirect: {
-        destination: "/",
-        permanent: false,
-      },
-    };
-  }
-
-  const ssg = createProxySSGHelpers({
-    router: appRouter,
-    ctx: await createTRPCContext({
-      req: context.req as NextApiRequest,
-      res: context.res as NextApiResponse,
-    }),
-    transformer: superjson,
-  });
-
-  try {
-    await ssg.user.getOne.fetch(context.query);
-    await ssg.post.getAllFromUser.prefetch({
-      username: context.query.username as string,
-    });
-  } catch (error) {
-    return {
-      redirect: {
-        // TODO: Either redirect to home or go to 404
-        destination: "/404",
-        permanent: false,
-      },
-    };
-  }
-
-  return {
-    props: {
-      trpcState: ssg.dehydrate(),
-      session,
-    },
-  };
-}

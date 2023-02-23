@@ -2,6 +2,7 @@ import { z } from "zod";
 import { env } from "../../../env/server.mjs";
 import { createTRPCRouter, publicProcedure, protectedProcedure } from "../trpc";
 import { TRPCError } from "@trpc/server";
+import type { FullPost } from "../../../types/types.js";
 import s3 from "../../s3";
 
 export const postRouter = createTRPCRouter({
@@ -20,8 +21,9 @@ export const postRouter = createTRPCRouter({
         username: z.string().optional(),
       })
     )
-    .query(({ ctx, input }) => {
-      return ctx.prisma.post.findMany({
+    .query(async ({ ctx, input }) => {
+      const posts = await ctx.prisma.post.findMany({
+        take: 5,
         where: {
           OR: [
             { authorId: input.id },
@@ -30,10 +32,12 @@ export const postRouter = createTRPCRouter({
         },
         include: { author: true, images: true },
       });
+      await embedPostImageUrls(posts);
+      return posts;
     }),
   getAll: publicProcedure.query(async ({ ctx }) => {
     const posts = await ctx.prisma.post.findMany({
-      take: 10,
+      take: 5,
       orderBy: {
         createdAt: "desc",
       },
@@ -42,31 +46,7 @@ export const postRouter = createTRPCRouter({
 
     // loop through posts and get signed urls for each image
     // then add the url to each image object in each post(NOTE: not stored in db)
-    for (const post of posts) {
-      let urls: (string | undefined)[] | undefined = [];
-      for (const image of post.images) {
-        const bucketObjects = await s3
-          .listObjectsV2({
-            Bucket: env.AWS_BUCKET_NAME,
-            Prefix: `${image.userId}/${image?.postId || ""}/`,
-          })
-          .promise();
-
-        urls = bucketObjects.Contents?.map((content) => {
-          if (content.Key) {
-            const url = s3.getSignedUrl("getObject", {
-              Bucket: env.AWS_BUCKET_NAME,
-              Key: content.Key,
-              Expires: 3600,
-            });
-            return url;
-          }
-        });
-      }
-      post.images.forEach((image, index) => {
-        image.url = urls?.at(index) as string;
-      });
-    }
+    await embedPostImageUrls(posts);
     return posts;
   }),
   createOne: protectedProcedure
@@ -177,3 +157,31 @@ export const postRouter = createTRPCRouter({
       });
     }),
 });
+
+async function embedPostImageUrls(posts: FullPost[]) {
+  for (const post of posts) {
+    let urls: (string | undefined)[] | undefined = [];
+    for (const image of post.images) {
+      const bucketObjects = await s3
+        .listObjectsV2({
+          Bucket: env.AWS_BUCKET_NAME,
+          Prefix: `${image.userId}/${image?.postId || ""}/`,
+        })
+        .promise();
+
+      urls = bucketObjects.Contents?.map((content) => {
+        if (content.Key) {
+          const url = s3.getSignedUrl("getObject", {
+            Bucket: env.AWS_BUCKET_NAME,
+            Key: content.Key,
+            Expires: 3600,
+          });
+          return url;
+        }
+      });
+    }
+    post.images.forEach((image, index) => {
+      image.url = urls?.at(index) as string;
+    });
+  }
+}
