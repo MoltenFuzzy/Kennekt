@@ -8,8 +8,10 @@ import { api } from "../utils/api";
 import Dropdown from "./Dropdown";
 import LikeButton from "./LikeButton";
 import DislikeButton from "./DislikeButton";
-import "animate.css";
 import ImageCarousel from "./ImageCarousel";
+import { FaRegCommentAlt } from "react-icons/fa";
+import "animate.css";
+import CommentForm from "./CommentForm";
 
 interface PostProps {
   id: string;
@@ -104,14 +106,21 @@ function Post({
         <div className="flex flex-row gap-x-5">
           <div className="flex items-center gap-x-2">
             <LikeButton id={id} />
-            <div>{likes}</div>
+            <span>{likes}</span>
           </div>
           <div className="flex items-center gap-x-2">
             <DislikeButton id={id} />
-            <div>{comments}</div>
+            <span>{likes}</span>
+          </div>
+          <div className="flex items-center gap-x-2">
+            <button type="button">
+              <FaRegCommentAlt />
+            </button>
+            <span>{comments}</span>
           </div>
         </div>
       </div>
+      {session && <CommentForm />}
     </div>
   );
 }

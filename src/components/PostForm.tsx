@@ -3,7 +3,7 @@ import useAppStore from "../stores/app";
 import type { FullPost } from "../types/types";
 import { api } from "../utils/api";
 import { useForm } from "react-hook-form";
-import { Image as ImageType } from "@prisma/client";
+import type { Image as ImageType } from "@prisma/client";
 import Image from "next/image";
 
 type PostSubmitForm = {
@@ -11,12 +11,7 @@ type PostSubmitForm = {
   body: string;
 };
 
-// type Field = {
-//   [key: string]: string | Blob;
-// };
-
 function PostForm() {
-  const util = api.useContext();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { posts, setPosts, setPostsOptimisticUpdateApplied } = useAppStore(
     (state) => state
@@ -40,11 +35,11 @@ function PostForm() {
     // instead of optional, we use an empty array
     const filesArray = Array.from(fileInputRef.current?.files || []);
 
-    filesArray.forEach((file) => {
+    for (const file of filesArray) {
       if (!file.type.startsWith("image/")) {
         return alert("Only Images are allowed");
       }
-    });
+    }
 
     createPost.mutate(
       {
