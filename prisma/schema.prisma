@@ -49,28 +49,30 @@ model Session {
 }
 
 model User {
-    id            String    @id @default(cuid())
-    username      String?   @unique
-    firstName     String?
-    lastName      String?
-    name          String?
-    password      String?
-    email         String?   @unique
-    emailVerified DateTime?
-    image         String?
-    role          Role      @default(USER)
-    accounts      Account[]
-    posts         Post[]
-    images        Image[]
-    comments      Comment[]
-    sessions      Session[]
+    id               String    @id @default(cuid())
+    username         String?   @unique
+    firstName        String?
+    lastName         String?
+    name             String?
+    password         String?
+    email            String?   @unique
+    emailVerified    DateTime?
+    image            String?
+    role             Role      @default(USER)
+    accounts         Account[]
+    posts            Post[]
+    images           Image[]
+    comments         Comment[]
+    sessions         Session[]
     // many to many
-    followedBy    Follows[] @relation("following")
-    following     Follows[] @relation("follower")
+    followedBy       Follows[] @relation("following")
+    following        Follows[] @relation("follower")
     // many to many
-    likedPosts    Post[]    @relation("likedPosts")
-    dislikedPosts Post[]    @relation("dislikedPosts")
-    createdAt     DateTime  @default(now())
+    likedPosts       Post[]    @relation("likedPosts")
+    dislikedPosts    Post[]    @relation("dislikedPosts")
+    likedComments    Comment[] @relation("likedComments")
+    dislikedComments Comment[] @relation("dislikedComments")
+    createdAt        DateTime  @default(now())
 }
 
 model Follows {
@@ -120,14 +122,16 @@ model Image {
 // TODO: https://stackoverflow.com/questions/70095411/i-want-to-use-prisma-to-store-nested-comments-like-on-reddit-how-can-i-retrie
 model Comment {
     id              String    @id @default(cuid())
-    comment         String    @db.VarChar(255)
+    text            String    @db.VarChar(255)
     published       Boolean   @default(false)
     authorId        String
     author          User      @relation(fields: [authorId], references: [id])
     postId          String
     post            Post      @relation(fields: [postId], references: [id])
     likesCount      Int       @default(0)
-    // likedBy         User[]    @relation("likedBy", references: [id])
+    likedBy         User[]    @relation("likedComments")
+    dislikesCount   Int       @default(0)
+    dislikedBy      User[]    @relation("dislikedComments")
     repliesCount    Int       @default(0)
     replies         Comment[] @relation("replies")
     parentCommentId String?

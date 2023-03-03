@@ -5,6 +5,8 @@ import { api } from "../utils/api";
 import { useForm } from "react-hook-form";
 import type { Image as ImageType } from "@prisma/client";
 import Image from "next/image";
+import config from "../config/config";
+import { useSession } from "next-auth/react";
 
 type PostSubmitForm = {
   title: string;
@@ -12,11 +14,12 @@ type PostSubmitForm = {
 };
 
 function PostForm() {
+  const { data: session } = useSession();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { posts, setPosts, setPostsOptimisticUpdateApplied } = useAppStore(
     (state) => state
   );
-  const [images, setImages] = useState<File[]>([]);
+  const [imagesInput, setImagesInput] = useState<File[]>([]);
   const {
     register,
     handleSubmit,
@@ -32,12 +35,19 @@ function PostForm() {
   const onSubmit = ({ title, body }: PostSubmitForm) => {
     const bodyInput = body.replace(/(?:(?:\r\n|\r|\n)\s*){2}/gm, ""); // removes empty lines
 
-    // instead of optional, we use an empty array
-    const filesArray = Array.from(fileInputRef.current?.files || []);
+    if (imagesInput.length > config.MAX_UPLOAD_FILES) {
+      setImagesInput([]); // Empty the images array upon submit
+      return alert("You can only upload 5 images at a time");
+    }
 
-    for (const file of filesArray) {
+    for (const file of imagesInput) {
       if (!file.type.startsWith("image/")) {
+        setImagesInput([]); // Empty the images array upon submit
         return alert("Only Images are allowed");
+      }
+      if (file.size > config.MAX_FILE_SIZE) {
+        setImagesInput([]); // Empty the images array upon submit
+        return alert("File size is too large");
       }
     }
 
@@ -48,7 +58,7 @@ function PostForm() {
       },
       {
         onSuccess: (post) => {
-          filesArray.forEach((file) => {
+          imagesInput.forEach((file) => {
             // dummy image object for optimistic ui updates
             const image: ImageType = {
               id: "",
@@ -57,17 +67,17 @@ function PostForm() {
               mimetype: null,
               encoding: null,
               postId: post.id,
-              userId: "",
-              createdAt: new Date(),
-              updatedAt: new Date(),
+              userId: session?.user?.id || "",
+              createdAt: post.createdAt,
+              updatedAt: post.updatedAt,
             };
             post.images.push(image);
           });
           setPosts([post as FullPost, ...posts]);
           setPostsOptimisticUpdateApplied(true);
-          setImages([]); // Empty the images array upon submit
+          setImagesInput([]); // Empty the images array upon submit
           reset(); // TODO: FIX THIS CUZ ITS BAD
-          if (filesArray.length > 0) void uploadImage(post.id);
+          if (imagesInput.length > 0) void uploadImage(post.id);
         },
         onError: (error) => {
           // TODO: show error to user
@@ -80,7 +90,7 @@ function PostForm() {
   const uploadImage = async (postId: string) => {
     const presignedPosts = await createPresignedUrl({
       postId,
-      images: images.map((image) => image.name),
+      images: imagesInput.map((image) => image.name),
     });
 
     // post all images to s3
@@ -88,11 +98,11 @@ function PostForm() {
       presignedPosts.map(async (presignedPost, index) => {
         const formData = new FormData();
         // this is weird but it has to start with content-type for some reason
-        formData.append("Content-Type", images[index]?.type || "");
+        formData.append("Content-Type", imagesInput[index]?.type || "");
         Object.keys(presignedPost.fields).forEach((key) => {
           formData.append(key, presignedPost.fields[key] as string | Blob);
         });
-        formData.append("file", images[index] as Blob);
+        formData.append("file", imagesInput[index] as Blob);
 
         await fetch(presignedPost.url, {
           method: "POST",
@@ -103,13 +113,16 @@ function PostForm() {
   };
 
   const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // put all of the images from the filesArray reference into state when the input element is changed
+    // i.e. when someone uploads images
     if (e.target.files) {
-      setImages([...images, ...Array.from(e.target.files)]);
+      setImagesInput([...imagesInput, ...Array.from(e.target.files)]);
     }
   };
 
   // useEffect(() => {
-  //   console.log(images);
+  //   console.log(imagesInput);
+  //   console.log(fileInputRef.current?.files);
   // });
 
   return (
@@ -186,9 +199,9 @@ function PostForm() {
                 </button>
               </div>
             </div>
-            {fileInputRef.current?.files?.length ? (
+            {imagesInput.length > 0 ? (
               <div className="flex ">
-                {Array.from(fileInputRef.current?.files).map((file) => (
+                {imagesInput.map((file) => (
                   <div key={file.name}>
                     <Image
                       alt="file.name"

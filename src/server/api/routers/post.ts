@@ -4,15 +4,19 @@ import { createTRPCRouter, publicProcedure, protectedProcedure } from "../trpc";
 import { TRPCError } from "@trpc/server";
 import type { FullPost } from "../../../types/types.js";
 import s3 from "../../s3";
+import config from "../../../config/config";
 
 export const postRouter = createTRPCRouter({
   getOne: publicProcedure
     .input(z.object({ id: z.string() }))
-    .query(({ ctx, input }) => {
-      return ctx.prisma.post.findUnique({
+    .query(async ({ ctx, input }) => {
+      const post = await ctx.prisma.post.findUnique({
         where: { id: input.id },
-        include: { author: true },
+        include: { author: true, images: true },
       });
+
+      await embedPostImageUrls([post as FullPost]);
+      return post;
     }),
   getAllFromUser: publicProcedure
     .input(
@@ -74,7 +78,7 @@ export const postRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const post = await ctx.prisma.post.findUnique({
         where: { id: input.id },
-        select: { authorId: true },
+        select: { authorId: true, images: true },
       });
       // backend validation for user authorization to delete post
       if (post?.authorId !== ctx.session.user.id) {
@@ -82,6 +86,21 @@ export const postRouter = createTRPCRouter({
           code: "CONFLICT",
           message: "You are not authorized to delete this post",
         });
+      }
+
+      // delete images from s3 bucket
+      for (const image of post.images) {
+        s3.deleteObject(
+          {
+            Bucket: env.AWS_BUCKET_NAME,
+            Key: `${image.userId}/${image?.postId as string}/${image.id}`,
+          },
+          (err) => {
+            if (err) {
+              console.log(err);
+            }
+          }
+        );
       }
 
       return ctx.prisma.post.delete({
@@ -174,7 +193,7 @@ async function embedPostImageUrls(posts: FullPost[]) {
           const url = s3.getSignedUrl("getObject", {
             Bucket: env.AWS_BUCKET_NAME,
             Key: content.Key,
-            Expires: 3600,
+            Expires: config.PRESIGNED_URL_EXPIRATION,
           });
           return url;
         }

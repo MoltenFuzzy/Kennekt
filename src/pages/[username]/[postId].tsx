@@ -1,24 +1,25 @@
+import React, { useEffect } from "react";
+import Modal from "../../components/Modal";
+import NavBar from "../../components/NavBar";
+import Post from "../../components/Post";
+import Sidebar from "../../components/Sidebar";
+import { useSession } from "next-auth/react";
+
 import type {
   GetServerSidePropsContext,
+  InferGetServerSidePropsType,
   NextApiRequest,
   NextApiResponse,
 } from "next";
-import { useSession } from "next-auth/react";
 import { createProxySSGHelpers } from "@trpc/react-query/ssg";
-import NavBar from "../components/NavBar";
-import { unstable_getServerSession } from "next-auth";
-import { authOptions } from "./api/auth/[...nextauth]";
-import Modal from "../components/Modal";
-import PostForm from "../components/PostForm";
-import React, { useEffect } from "react";
-import { createTRPCContext } from "../server/api/trpc";
-import { appRouter } from "../server/api/root";
 import type { CreateNextContextOptions } from "@trpc/server/adapters/next";
-import { api } from "../utils/api";
+import { unstable_getServerSession } from "next-auth";
+import { appRouter } from "../../server/api/root";
+import { createTRPCContext } from "../../server/api/trpc";
+import { authOptions } from "../api/auth/[...nextauth]";
 import superjson from "superjson";
-import useAppStore from "../stores/app";
-import Sidebar from "../components/Sidebar";
-import PostPreview from "../components/PostPreview";
+import { api } from "../../utils/api";
+import { User } from "@prisma/client";
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   const session = await unstable_getServerSession(
@@ -47,40 +48,33 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     transformer: superjson,
   });
 
-  // const id = context.params?.id as string;
+  const postId = context.params?.postId as string;
   /*
    * Prefetching the `post.byId` query here.
    * `prefetch` does not return the result and never throws - if you need that behavior, use `fetch` instead.
    */
-  // await ssg.post.byId.prefetch({ id });
-  await ssg.post.getAll.prefetch();
+  await ssg.post.getOne.prefetch({ id: postId });
+  // await ssg.post.getAll.prefetch();
 
   return {
-    props: { trpcState: ssg.dehydrate(), session },
+    props: { trpcState: ssg.dehydrate(), session, postId },
   };
 }
 
-export default function Home() {
+export default function PostPage(
+  props: InferGetServerSidePropsType<typeof getServerSideProps>
+) {
+  const { postId } = props;
   const { data: sessionData } = useSession();
-  const { data: postsData } = api.post.getAll.useQuery(undefined, {
-    enabled: true,
-  });
-  const {
-    posts: userPosts,
-    setPosts,
-    postsOptimisticUpdateApplied,
-  } = useAppStore((state) => state);
+
+  const { data: postData } = api.post.getOne.useQuery(
+    { id: postId },
+    { enabled: true }
+  );
 
   useEffect(() => {
-    // I want userPosts to be updated with the refetched postsData when the user tabs out of the page
-    // the refetched postsData will have the new post from the current user
-    if (postsData) {
-      if (!postsOptimisticUpdateApplied) {
-        // set the posts to the store, since we are using the store to display the posts
-        setPosts(postsData);
-      }
-    }
-  }, [postsData, postsOptimisticUpdateApplied, setPosts]);
+    console.log(postData);
+  });
 
   return (
     <>
@@ -93,20 +87,18 @@ export default function Home() {
           <div className="col-span-1 hidden text-center text-white lg:block "></div>
           <div className="col-span-2">
             <div className="container mx-auto mt-2 grid grid-cols-1 gap-y-4 p-6 sm:p-0 sm:pl-8 sm:pt-2">
-              <PostForm />
-              {userPosts.map((post, index) => (
-                <PostPreview
-                  key={index}
-                  id={post.id}
-                  user={post.author}
-                  session={sessionData}
-                  title={post.title}
-                  images={post.images}
-                  body={post.body}
-                  likes={post.likesCount}
-                  comments={0}
-                />
-              ))}
+              {/* TODO: maybe passing a lot of props isnt good, maybe use ...postData? */}
+              <Post
+                id={postData?.id || ""}
+                user={postData?.author as User}
+                session={sessionData}
+                title={postData?.title || ""}
+                body={postData?.body || ""}
+                images={postData?.images || []}
+                likes={postData?.likesCount || 0}
+                comments={0}
+                isOnClick={false}
+              />
             </div>
           </div>
           <div className="col-span-1 hidden flex-none sm:block">

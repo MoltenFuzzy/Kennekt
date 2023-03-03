@@ -26,5 +26,12 @@
   border: 3px solid var(--primary);
 }
 
+/* Removes default focus outline for chrome */
+*,
+*:focus,
+*:hover {
+  outline: none;
+}
+
 @tailwind components;
 @tailwind utilities;

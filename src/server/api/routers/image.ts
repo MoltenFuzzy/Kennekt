@@ -3,6 +3,7 @@ import { createTRPCRouter, protectedProcedure } from "../trpc";
 import type { PresignedPost } from "@aws-sdk/s3-presigned-post";
 import { env } from "../../../env/server.mjs";
 import s3 from "../../s3";
+import config from "../../../config/config";
 
 export const imageRouter = createTRPCRouter({
   getAllForPost: protectedProcedure
@@ -25,7 +26,7 @@ export const imageRouter = createTRPCRouter({
           const url = s3.getSignedUrl("getObject", {
             Bucket: env.AWS_BUCKET_NAME,
             Key: content.Key,
-            Expires: 3600,
+            Expires: config.PRESIGNED_URL_EXPIRATION,
           });
           return url;
         }
@@ -90,11 +91,11 @@ export const imageRouter = createTRPCRouter({
           Fields: {
             key: `${ctx.session.user.id}/${image.postId as string}/${image.id}`,
           },
-          Expires: 3600,
+          Expires: config.PRESIGNED_URL_EXPIRATION,
           ContentType: "image/*",
           Conditions: [
             ["starts-with", "$Content-Type", "image/"],
-            ["content-length-range", 0, 10000000], // 10 Mb
+            ["content-length-range", 0, config.MAX_FILE_SIZE], // 10 Mb
           ],
         };
 

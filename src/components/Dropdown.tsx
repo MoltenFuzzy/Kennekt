@@ -1,4 +1,4 @@
-import React from "react";
+import { useRef, useEffect, useState } from "react";
 import { HiDotsHorizontal } from "react-icons/hi";
 
 interface DropdownProps {
@@ -6,24 +6,50 @@ interface DropdownProps {
 }
 
 const Dropdown = ({ children }: DropdownProps) => {
-  const [isPressed, setIsPressed] = React.useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const [isOpen, setIsOpen] = useState(false);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        // Close the dropdown
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener("click", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("click", handleClickOutside);
+    };
+  }, [dropdownRef]);
 
   return (
-    <>
-      <button
-        title="dropdown"
-        type="button"
-        className="h-fit"
-        onClick={() => setIsPressed(!isPressed)}
-      >
-        <HiDotsHorizontal size={20} color="white" />
-      </button>
-      <div className={`${isPressed ? "block" : "hidden"} absolute`}>
-        <div className="relative  h-10 w-32 rounded-lg bg-[#424245]">
+    <div ref={dropdownRef} className="h-0">
+      <div className="relative inline-flex w-full align-middle">
+        <button
+          title="dropdown"
+          type="button"
+          className="h-fit"
+          onClick={(e) => {
+            e.stopPropagation();
+            setIsOpen(!isOpen);
+          }}
+        >
+          <HiDotsHorizontal size={20} color="white" />
+        </button>
+        <div
+          className={`${
+            isOpen ? "flex flex-col" : "hidden"
+          } absolute top-6 right-0 z-10 items-center justify-center rounded-md bg-[#424245] p-2`}
+        >
           {children}
         </div>
       </div>
-    </>
+    </div>
   );
 };
 
@@ -34,7 +60,11 @@ interface ItemProps {
 
 const Item = ({ children, onClick }: ItemProps) => {
   return (
-    <button type="button" className="" onClick={onClick}>
+    <button
+      type="button"
+      className="bg- w-full bg-black p-2 text-center hover:bg-blue-900"
+      onClick={onClick}
+    >
       {children}
     </button>
   );

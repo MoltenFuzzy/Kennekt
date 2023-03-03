@@ -11,7 +11,6 @@ import DislikeButton from "./DislikeButton";
 import ImageCarousel from "./ImageCarousel";
 import { FaRegCommentAlt } from "react-icons/fa";
 import CommentForm from "./CommentForm";
-import Comment from "./Comment";
 import { useRouter } from "next/router";
 import "animate.css";
 
@@ -24,7 +23,6 @@ interface PostProps {
   images: ImageType[];
   likes: number;
   comments: number;
-  isOnClick?: boolean;
 }
 
 function Post({
@@ -36,9 +34,7 @@ function Post({
   images,
   likes,
   comments,
-  isOnClick = true,
 }: PostProps) {
-  const [isCommentFormVisible, setIsCommentFormVisible] = React.useState(true);
   const utils = api.useContext();
   const router = useRouter();
   const deletePost = api.post.deleteOne.useMutation({
@@ -98,24 +94,17 @@ function Post({
             <DislikeButton id={id} />
             <span>{likes}</span>
           </div>
-          <button
-            type="button"
-            className="flex items-center gap-x-2"
-            onClick={() => {
-              setIsCommentFormVisible(!isCommentFormVisible);
-            }}
-          >
-            <FaRegCommentAlt size={18} />
-            <span>{comments}</span>
+          <button type="button">
+            <Link
+              href={`${author.username as string}/${id}`}
+              className="flex items-center gap-x-2"
+            >
+              <FaRegCommentAlt size={18} />
+              <span>{comments}</span>
+            </Link>
           </button>
         </div>
       </div>
-      {isCommentFormVisible && !isOnClick && (
-        <>
-          <CommentForm />
-          {/* <Comment comment={undefined} /> */}
-        </>
-      )}
     </div>
   );
 }
