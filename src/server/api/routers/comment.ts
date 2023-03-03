@@ -10,13 +10,13 @@ export const commentRouter = createTRPCRouter({
     return ctx.prisma.comment.findMany({ include: { author: true } });
   }),
   createOne: protectedProcedure
-    .input(z.object({ comment: z.string(), postId: z.string() }))
+    .input(z.object({ postId: z.string(), text: z.string() }))
     .mutation(({ ctx, input }) => {
       return ctx.prisma.comment.create({
         data: {
           authorId: ctx.session.user.id,
-          comment: input.comment,
           postId: input.postId,
+          text: input.text,
         },
         // select returns those records
         select: {
