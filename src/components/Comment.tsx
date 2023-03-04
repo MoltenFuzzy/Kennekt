@@ -25,7 +25,7 @@ const Comment: React.FC<CommentProps> = ({ comment }) => {
         <span>{comment.text}</span>
       </div>
       {comment.replies.length > 0 && (
-        <button onClick={toggleReplies}>
+        <button type="button" onClick={toggleReplies}>
           {showReplies ? "Hide Replies" : "Show Replies"}
         </button>
       )}

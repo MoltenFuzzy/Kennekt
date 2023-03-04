@@ -18,7 +18,7 @@ import { api } from "../utils/api";
 import superjson from "superjson";
 import useAppStore from "../stores/app";
 import Sidebar from "../components/Sidebar";
-import PostPreview from "../components/PostPreview";
+import Post from "../components/Post";
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   const session = await unstable_getServerSession(
@@ -85,7 +85,7 @@ export default function Home() {
   return (
     <>
       <NavBar user={sessionData?.user} />
-      <div className="min-h-screen  bg-[radial-gradient(ellipse_at_bottom_right,_var(--tw-gradient-stops))] from-slate-900 via-slate-800 to-zinc-900">
+      <div className="min-h-screen">
         <div className="xs:grid-cols-3 grid grid-cols-1 gap-y-5 sm:grid-cols-3 lg:grid-cols-10 lg:gap-x-0 xl:gap-x-20">
           {sessionData?.user?.username ? null : (
             <Modal title={"Setup Profile"} />
@@ -95,7 +95,7 @@ export default function Home() {
             <div className="container mx-auto mt-2 grid grid-cols-1 gap-y-4 p-6 sm:p-0 sm:pt-2 ">
               <PostForm />
               {userPosts.map((post, index) => (
-                <PostPreview
+                <Post
                   key={index}
                   id={post.id}
                   user={post.author}

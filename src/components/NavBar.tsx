@@ -92,6 +92,7 @@ function NavBar({ user }: NavBarProps) {
               src={user?.image || defaultPicture.src}
               height={40}
               width={40}
+              className="cursor-pointer rounded-full"
             />
           </Link>
         </div>

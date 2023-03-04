@@ -72,10 +72,12 @@ const Profile: NextPage = () => {
 
   const { data: sessionData } = useSession();
 
+  // get user data
   const user = api.user.getOne.useQuery({
     username: router.query.username as string,
   });
 
+  // get all posts from user
   const posts = api.post.getAllFromUser.useQuery({
     username: router.query.username as string,
   });
@@ -100,8 +102,7 @@ const Profile: NextPage = () => {
               </h2>
             </div>
           </div>
-          <div className="flex flex-col items-center sm:items-start"></div>
-          <div className="flex flex-col gap-5 lg:w-1/2">
+          <div className="grid grid-cols-2 gap-5 ">
             {posts.data?.map((post, index) => (
               <Post
                 key={index}

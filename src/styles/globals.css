@@ -1,8 +1,17 @@
 @tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
   --primary: #27272a;
   --secondary: #525151;
+}
+
+@layer {
+  body {
+    @apply bg-slate-300 from-slate-900 via-slate-800
+    to-zinc-900 dark:bg-[radial-gradient(ellipse_at_bottom_right,_var(--tw-gradient-stops))];
+  }
 }
 
 /* Firefox */
@@ -32,6 +41,3 @@
 *:hover {
   outline: none;
 }
-
-@tailwind components;
-@tailwind utilities;

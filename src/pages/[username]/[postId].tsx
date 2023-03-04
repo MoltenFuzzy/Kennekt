@@ -80,13 +80,13 @@ export default function PostPage(
     <>
       <NavBar user={sessionData?.user} />
       <div className="min-h-screen  bg-[radial-gradient(ellipse_at_bottom_right,_var(--tw-gradient-stops))] from-slate-900 via-slate-800 to-zinc-900">
-        <div className="xs:grid-cols-3 grid grid-cols-1 gap-y-5 sm:grid-cols-3 lg:grid-cols-4 lg:gap-x-0 xl:gap-x-20">
+        <div className="xs:grid-cols-3 grid grid-cols-1 gap-y-5 sm:grid-cols-3 lg:grid-cols-7 lg:gap-x-0 xl:gap-x-20">
           {sessionData?.user?.username ? null : (
             <Modal title={"Setup Profile"} />
           )}
-          <div className="col-span-1 hidden text-center text-white lg:block "></div>
-          <div className="col-span-2">
-            <div className="container mx-auto mt-2 grid grid-cols-1 gap-y-4 p-6 sm:p-0 sm:pl-8 sm:pt-2">
+          <div className="col-span-2 hidden text-center text-white lg:block "></div>
+          <div className="col-span-3">
+            <div className="container mx-auto mt-2 grid grid-cols-1 gap-y-4 p-6 sm:p-0 sm:pt-2">
               {/* TODO: maybe passing a lot of props isnt good, maybe use ...postData? */}
               <Post
                 id={postData?.id || ""}
@@ -101,7 +101,7 @@ export default function PostPage(
               />
             </div>
           </div>
-          <div className="col-span-1 hidden flex-none sm:block">
+          <div className="col-span-2 hidden flex-none sm:block">
             <Sidebar session={sessionData} />
           </div>
         </div>

@@ -57,14 +57,14 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({ images }) => {
       )}
 
       {images.map((image, index) => (
-        <SwiperSlide key={image.id}>
+        <SwiperSlide key={image.id} className="flex">
           <Image
             src={images[index]?.url || ""}
             alt={images[index]?.filename || ""}
             width="0"
             height="0"
             sizes="100vw"
-            className="h-full w-full"
+            className="h-full w-full self-center justify-self-center"
             priority={true}
           />
         </SwiperSlide>

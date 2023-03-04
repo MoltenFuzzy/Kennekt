@@ -31,7 +31,6 @@ const Dropdown = ({ children }: DropdownProps) => {
     <div ref={dropdownRef} className="h-0">
       <div className="relative inline-flex w-full align-middle">
         <button
-          title="dropdown"
           type="button"
           className="h-fit"
           onClick={(e) => {

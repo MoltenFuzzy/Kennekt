@@ -13,6 +13,7 @@ import { FaRegCommentAlt } from "react-icons/fa";
 import CommentForm from "./CommentForm";
 import Comment from "./Comment";
 import { useRouter } from "next/router";
+import Linkify from "react-linkify";
 import "animate.css";
 
 interface PostProps {
@@ -24,7 +25,6 @@ interface PostProps {
   images: ImageType[];
   likes: number;
   comments: number;
-  isOnClick?: boolean;
 }
 
 function Post({
@@ -36,9 +36,8 @@ function Post({
   images,
   likes,
   comments,
-  isOnClick = true,
 }: PostProps) {
-  const [isCommentFormVisible, setIsCommentFormVisible] = React.useState(true);
+  const [isCommentFormVisible, setIsCommentFormVisible] = React.useState(false);
   const utils = api.useContext();
   const router = useRouter();
   const deletePost = api.post.deleteOne.useMutation({
@@ -82,7 +81,9 @@ function Post({
         </div>
         <div className="mt-5 w-full text-white ">
           <div className="text-3xl">{title}</div>
-          <div className="whitespace-pre-line">{body}</div>
+          <Linkify>
+            <div className="whitespace-pre-line">{body}</div>
+          </Linkify>
         </div>
       </div>
       <div className="my-5">
@@ -110,7 +111,7 @@ function Post({
           </button>
         </div>
       </div>
-      {isCommentFormVisible && !isOnClick && (
+      {isCommentFormVisible && (
         <>
           <CommentForm />
           {/* <Comment comment={undefined} /> */}

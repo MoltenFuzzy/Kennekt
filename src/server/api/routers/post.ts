@@ -28,6 +28,9 @@ export const postRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       const posts = await ctx.prisma.post.findMany({
         take: 5,
+        orderBy: {
+          createdAt: "desc",
+        },
         where: {
           OR: [
             { authorId: input.id },
