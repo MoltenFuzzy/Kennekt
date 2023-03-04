@@ -42,9 +42,6 @@
   outline: none;
 }
 
-@tailwind components;
-@tailwind utilities;
-
 /* TODO: overwrites swiperjs centers element until i can find a good fix */
 .swiper {
   width: 100%;
