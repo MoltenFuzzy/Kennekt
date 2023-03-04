@@ -92,7 +92,7 @@ export default function Home() {
           )}
           <div className="col-span-3 hidden text-center text-white lg:block "></div>
           <div className="col-span-4">
-            <div className="container mx-auto mt-2 grid grid-cols-1 gap-y-4 p-6 sm:p-0 sm:pt-2 ">
+            <div className="container mx-auto mt-2 grid grid-cols-1 gap-y-4 p-6 sm:p-0 sm:pt-2">
               <PostForm />
               {userPosts.map((post, index) => (
                 <Post

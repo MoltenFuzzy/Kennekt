@@ -63,9 +63,9 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({ images }) => {
             alt={images[index]?.filename || ""}
             width="0"
             height="0"
-            sizes="100vw"
-            className="h-full w-full self-center justify-self-center"
-            priority={true}
+            sizes="512px"
+            className="h-auto w-auto"
+            unoptimized
           />
         </SwiperSlide>
       ))}
