@@ -59,13 +59,13 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({ images }) => {
       {images.map((image, index) => (
         <SwiperSlide key={image.id}>
           <Image
+            className="h-full w-full"
             src={images[index]?.url || ""}
             alt={images[index]?.filename || ""}
             width="0"
             height="0"
-            sizes="100vw"
-            className="h-full w-full"
-            priority={true}
+            fill
+            sizes="256px"
           />
         </SwiperSlide>
       ))}
