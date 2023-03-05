@@ -85,33 +85,32 @@ export default function Home() {
   return (
     <>
       <NavBar user={sessionData?.user} />
-      <div className="min-h-screen">
-        <div className="xs:grid-cols-3 grid grid-cols-1 gap-y-5 sm:grid-cols-3 lg:grid-cols-10 lg:gap-x-0 xl:gap-x-20">
-          {sessionData?.user?.username ? null : (
-            <Modal title={"Setup Profile"} />
-          )}
-          <div className="col-span-3 hidden text-center text-white lg:block "></div>
-          <div className="col-span-4">
-            <div className="container mx-auto mt-2 grid grid-cols-1 gap-y-4 p-6 sm:p-0 sm:pt-2">
-              <PostForm />
-              {userPosts.map((post, index) => (
-                <Post
-                  key={index}
-                  id={post.id}
-                  user={post.author}
-                  session={sessionData}
-                  title={post.title}
-                  images={post.images}
-                  body={post.body}
-                  likes={post.likesCount}
-                  comments={0}
-                />
-              ))}
-            </div>
+      <div className="xs:grid-cols-3 grid grid-cols-1 gap-y-5 sm:grid-cols-3 lg:grid-cols-10 lg:gap-x-0 xl:gap-x-20">
+        {sessionData?.user?.username ? null : <Modal title={"Setup Profile"} />}
+        <div className="col-span-3 hidden text-center text-white lg:block "></div>
+        <div className="col-span-4">
+          <div className="container mx-auto mt-2 grid grid-cols-1 gap-y-4 p-3 sm:p-0 sm:pt-2">
+            <PostForm />
+            {userPosts.map((post, index) => (
+              <Post
+                key={index}
+                id={post.id}
+                user={post.author}
+                session={sessionData}
+                title={post.title}
+                images={post.images}
+                body={post.body}
+                likes={post.likesCount}
+                dislikes={post.dislikesCount}
+                comments={post.commentsCount}
+                createdAt={post.createdAt}
+                isClickable={true}
+              />
+            ))}
           </div>
-          <div className="col-span-3 hidden flex-none sm:block">
-            <Sidebar session={sessionData} />
-          </div>
+        </div>
+        <div className="col-span-3 hidden flex-none sm:block">
+          <Sidebar session={sessionData} />
         </div>
       </div>
     </>

@@ -1,17 +1,11 @@
 import React, { useState } from "react";
-
-interface Comment {
-  id: number;
-  author: string;
-  text: string;
-  replies: Comment[];
-}
+import type { RouterOutputs } from "../utils/api";
 
 interface CommentProps {
-  comment: Comment;
+  commentData: RouterOutputs["comment"]["getAllFromPost"][0];
 }
 
-const Comment: React.FC<CommentProps> = ({ comment }) => {
+const Comment: React.FC<CommentProps> = ({ commentData }) => {
   const [showReplies, setShowReplies] = useState(false);
 
   const toggleReplies = () => {
@@ -19,21 +13,21 @@ const Comment: React.FC<CommentProps> = ({ comment }) => {
   };
 
   return (
-    <div>
-      <div>
-        <span>{comment.author}: </span>
-        <span>{comment.text}</span>
+    <>
+      <div className="relative flex-col overflow-hidden rounded border-[#2d3748] bg-zinc-800 p-6 text-white shadow-md">
+        <span>{commentData.author.username}: </span>
+        <span>{commentData.text}</span>
       </div>
-      {comment.replies.length > 0 && (
+      {commentData.replies.length > 0 && (
         <button type="button" onClick={toggleReplies}>
           {showReplies ? "Hide Replies" : "Show Replies"}
         </button>
       )}
-      {showReplies &&
+      {/* {showReplies &&
         comment.replies.map((reply) => (
           <Comment key={reply.id} comment={reply} />
-        ))}
-    </div>
+        ))} */}
+    </>
   );
 };
 

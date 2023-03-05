@@ -11,7 +11,6 @@ import DislikeButton from "./DislikeButton";
 import ImageCarousel from "./ImageCarousel";
 import { FaRegCommentAlt } from "react-icons/fa";
 import CommentForm from "./CommentForm";
-import Comment from "./Comment";
 import { useRouter } from "next/router";
 import Linkify from "react-linkify";
 import "animate.css";
@@ -24,7 +23,10 @@ interface PostProps {
   body: string;
   images: ImageType[];
   likes: number;
+  dislikes: number;
   comments: number;
+  createdAt: Date;
+  isClickable?: boolean;
 }
 
 function Post({
@@ -35,9 +37,13 @@ function Post({
   body,
   images,
   likes,
+  dislikes,
   comments,
+  createdAt,
+  isClickable = false,
 }: PostProps) {
   const [isCommentFormVisible, setIsCommentFormVisible] = React.useState(false);
+  const [highlightClass, setHighlightClass] = React.useState("");
   const utils = api.useContext();
   const router = useRouter();
   const deletePost = api.post.deleteOne.useMutation({
@@ -46,8 +52,25 @@ function Post({
     },
   });
 
+  useEffect(() => {
+    if (isClickable) {
+      setHighlightClass("border hover:border-zinc-600");
+    }
+  }, [isClickable]);
+
   return (
-    <div className="relative flex-col overflow-hidden rounded border-[#2d3748] bg-zinc-800 text-white shadow-md">
+    <div
+      className={`${highlightClass} relative flex-col overflow-hidden rounded border-[#2d3748] bg-zinc-800 text-white shadow-md`}
+      onClick={(e) => {
+        if ((e.target as HTMLElement).tagName === "DIV") {
+          if (isClickable) {
+            void router.push(`/${author?.username as string}/${id}`);
+          }
+        } else {
+          e.stopPropagation();
+        }
+      }}
+    >
       <div className="pt-6 pr-6 pl-6">
         <div className="flex justify-between">
           <Link href={`/user/${author?.username || ""}`}>
@@ -90,14 +113,14 @@ function Post({
         {images.length > 0 && <ImageCarousel images={images} />}
       </div>
       <div className="pb-6 pr-6 pl-6">
-        <div className="flex flex-row gap-x-5">
+        <div className="flex flex-row items-center gap-x-5">
           <div className="flex items-center gap-x-2">
             <LikeButton id={id} />
             <span>{likes}</span>
           </div>
           <div className="flex items-center gap-x-2">
             <DislikeButton id={id} />
-            <span>{likes}</span>
+            <span>{dislikes}</span>
           </div>
           <button
             type="button"
@@ -106,17 +129,15 @@ function Post({
               setIsCommentFormVisible(!isCommentFormVisible);
             }}
           >
-            <FaRegCommentAlt size={18} />
+            <FaRegCommentAlt size={20} />
             <span>{comments}</span>
           </button>
+          <div>
+            <span>{createdAt.toLocaleString()}</span>
+          </div>
         </div>
       </div>
-      {isCommentFormVisible && (
-        <>
-          <CommentForm />
-          {/* <Comment comment={undefined} /> */}
-        </>
-      )}
+      {isCommentFormVisible && <CommentForm postId={id} />}
     </div>
   );
 }

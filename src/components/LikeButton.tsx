@@ -1,4 +1,4 @@
-import { FiTrendingUp } from "react-icons/fi";
+import { FaSkull } from "react-icons/fa";
 import useAnimatePostIcons from "../hooks/useAnimatePostIcons";
 import { api } from "../utils/api";
 
@@ -27,9 +27,9 @@ export default function LikeButton({ id }: LikeButtonProps) {
         handleClick(250, true);
       }}
     >
-      <FiTrendingUp
+      <FaSkull
         color="#255bcf"
-        size={30}
+        size={25}
         className={`animate__animated ${
           isLikePressed ? "animate__heartBeat" : ""
         }`}

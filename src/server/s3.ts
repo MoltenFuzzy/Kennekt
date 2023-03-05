@@ -6,4 +6,5 @@ const s3 = new AWS.S3({
   secretAccessKey: env.AWS_SECRET_ACCESS_KEY_TEST,
   region: env.AWS_REGION_TEST,
 });
+
 export default s3;

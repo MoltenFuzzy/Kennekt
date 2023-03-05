@@ -12,6 +12,7 @@ export const postRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       const post = await ctx.prisma.post.findUnique({
         where: { id: input.id },
+        // joins the author, images, and comments tables
         include: { author: true, images: true },
       });
 
@@ -112,69 +113,87 @@ export const postRouter = createTRPCRouter({
     }),
   likeOne: protectedProcedure
     .input(z.object({ id: z.string() }))
-    .mutation(({ ctx, input }) => {
+    .mutation(async ({ ctx, input }) => {
+      const user = await ctx.prisma.user.findUnique({
+        where: {
+          id: ctx.session.user.id,
+        },
+        select: {
+          likedPosts: true,
+        },
+      });
+
+      // TODO: optimize this check
+      // like a comment, if the user has already liked it, unlike it
+      if (user?.likedPosts?.some((post) => post.id === input.id)) {
+        return ctx.prisma.post.update({
+          where: {
+            id: input.id,
+          },
+          data: {
+            likedBy: {
+              disconnect: {
+                id: ctx.session.user.id,
+              },
+            },
+            likesCount: { decrement: 1 },
+          },
+        });
+      }
+
       return ctx.prisma.post.update({
         where: {
           id: input.id,
         },
         data: {
-          likesCount: { increment: 1 },
           likedBy: {
             connect: {
               id: ctx.session.user.id,
             },
           },
-        },
-      });
-    }),
-  unlikeOne: protectedProcedure
-    .input(z.object({ id: z.string() }))
-    .mutation(({ ctx, input }) => {
-      return ctx.prisma.post.update({
-        where: {
-          id: input.id,
-        },
-        data: {
-          likesCount: { decrement: 1 },
-          likedBy: {
-            disconnect: {
-              id: ctx.session.user.id,
-            },
-          },
+          likesCount: { increment: 1 },
         },
       });
     }),
   dislikeOne: protectedProcedure
     .input(z.object({ id: z.string() }))
-    .mutation(({ ctx, input }) => {
+    .mutation(async ({ ctx, input }) => {
+      const user = await ctx.prisma.user.findUnique({
+        where: {
+          id: ctx.session.user.id,
+        },
+        select: {
+          dislikedPosts: true,
+        },
+      });
+
+      if (user?.dislikedPosts?.some((post) => post.id === input.id)) {
+        return ctx.prisma.post.update({
+          where: {
+            id: input.id,
+          },
+          data: {
+            dislikedBy: {
+              disconnect: {
+                id: ctx.session.user.id,
+              },
+            },
+            dislikesCount: { decrement: 1 },
+          },
+        });
+      }
+
       return ctx.prisma.post.update({
         where: {
           id: input.id,
         },
         data: {
-          dislikesCount: { increment: 1 },
           dislikedBy: {
             connect: {
               id: ctx.session.user.id,
             },
           },
-        },
-      });
-    }),
-  undislikeOne: protectedProcedure
-    .input(z.object({ id: z.string() }))
-    .mutation(({ ctx, input }) => {
-      return ctx.prisma.post.update({
-        where: {
-          id: input.id,
-        },
-        data: {
-          dislikesCount: { decrement: 1 },
-          dislikedBy: {
-            disconnect: {
-              id: ctx.session.user.id,
-            },
-          },
+          dislikesCount: { increment: 1 },
         },
       });
     }),

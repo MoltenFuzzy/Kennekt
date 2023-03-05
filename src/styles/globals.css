@@ -9,6 +9,7 @@
 
 @layer {
   body {
+    @apply bg-fixed;
     @apply bg-slate-300 from-slate-900 via-slate-800
     to-zinc-900 dark:bg-[radial-gradient(ellipse_at_bottom_right,_var(--tw-gradient-stops))];
   }
@@ -49,7 +50,7 @@
   position: relative;
   overflow: hidden;
   z-index: 1;
-  background-color: black;
+  background-color: rgba(0, 0, 0, 0.5);
 }
 
 /* TODO: overwrites swiperjs centers element until i can find a good fix */

@@ -1,4 +1,4 @@
-import { FiTrendingDown } from "react-icons/fi";
+import { SiLetterboxd } from "react-icons/si";
 import useAnimatePostIcons from "../hooks/useAnimatePostIcons";
 import { api } from "../utils/api";
 
@@ -24,12 +24,12 @@ export default function DislikeButton({ id }: DislikeButtonProps) {
         dislikePost.mutate({
           id: id,
         });
-        handleClick(250, true);
+        handleClick(250, false);
       }}
     >
-      <FiTrendingDown
+      <SiLetterboxd
         color="#eb4034"
-        size={30}
+        size={25}
         className={`animate__animated ${
           isDislikePressed ? "animate__heartBeat" : ""
         }`}
