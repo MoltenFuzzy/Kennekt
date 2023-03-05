@@ -111,13 +111,6 @@ const AuthShowcase: React.FC = () => {
   const router = useRouter();
   const { data: sessionData } = useSession();
 
-  const { data: secretMessage } = api.example.getSecretMessage.useQuery(
-    undefined, // no input
-    { enabled: sessionData?.user !== undefined }
-  );
-
-  // const testUser = api.user.getMyAccounts.useQuery();
-
   useEffect(() => {
     // console.log(testUser.data);
     console.log(sessionData?.user);
