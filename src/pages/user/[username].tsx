@@ -113,7 +113,9 @@ const Profile: NextPage = () => {
                 body={post.body}
                 images={post.images}
                 likes={post.likesCount}
-                comments={0}
+                dislikes={post.dislikesCount}
+                comments={post.commentsCount}
+                createdAt={post.createdAt}
               />
             ))}
           </div>
