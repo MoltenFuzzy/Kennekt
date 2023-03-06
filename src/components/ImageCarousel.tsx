@@ -58,17 +58,16 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({ images }) => {
 
       {/* Embed image sizes for a more consistant aspect ratio */}
       {images.map((image, index) => (
-        <SwiperSlide key={image.id} className="flex">
-          <div className="h-auto w-auto">
-            <Image
-              src={images[index]?.url || ""}
-              alt={images[index]?.filename || ""}
-              width="500"
-              height="500"
-              sizes="256px"
-              unoptimized
-            />
-          </div>
+        <SwiperSlide key={image.id} className="flex h-auto w-auto">
+          <Image
+            src={images[index]?.url || ""}
+            alt={images[index]?.filename || ""}
+            width="0"
+            height="0"
+            sizes="256px"
+            className="h-[70%] w-[70%]"
+            unoptimized
+          />
         </SwiperSlide>
       ))}
     </Swiper>

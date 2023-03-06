@@ -7,7 +7,7 @@ type CommentSubmitForm = {
 };
 
 interface CommentFormProps {
-  postId: string;
+  postId: string | undefined;
 }
 
 const CommentForm: React.FC<CommentFormProps> = ({ postId }) => {
@@ -22,7 +22,7 @@ const CommentForm: React.FC<CommentFormProps> = ({ postId }) => {
 
   const onSubmit = ({ text }: CommentSubmitForm) => {
     console.log(text);
-    createComment.mutate({ postId, text });
+    createComment.mutate({ postId: postId || "", text });
     reset();
   };
 
@@ -32,7 +32,7 @@ const CommentForm: React.FC<CommentFormProps> = ({ postId }) => {
         // eslint-disable-next-line @typescript-eslint/no-misused-promises
         onSubmit={handleSubmit(onSubmit)}
       >
-        <div className="flex flex-col items-center gap-y-3">
+        <div className="flex flex-col items-center gap-y-3 text-white">
           <label htmlFor="comment" className="sr-only">
             Comment
           </label>

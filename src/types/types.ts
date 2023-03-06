@@ -1,6 +1,3 @@
-import type { Post, Image, User } from ".prisma/client";
+import type { RouterOutputs } from "../utils/api";
 
-export type FullPost = Post & {
-  images: Image[];
-  author: User;
-};
+export type FullPost = RouterOutputs["post"]["getOne"];

@@ -1,6 +1,5 @@
 import React, { useEffect } from "react";
 import Image from "next/image";
-import type { User, Image as ImageType } from "@prisma/client";
 import type { Session } from "next-auth";
 import defaultPicture from "../../images/user.png";
 import Link from "next/link";
@@ -10,39 +9,29 @@ import LikeButton from "./LikeButton";
 import DislikeButton from "./DislikeButton";
 import ImageCarousel from "./ImageCarousel";
 import { FaRegCommentAlt } from "react-icons/fa";
-import CommentForm from "./CommentForm";
 import { useRouter } from "next/router";
+import type { RouterOutputs } from "../utils/api";
 import Linkify from "react-linkify";
 import "animate.css";
 
 interface PostProps {
-  id: string;
-  user: User;
+  postData: RouterOutputs["post"]["getOne"];
   session: Session | null;
-  title: string;
-  body: string;
-  images: ImageType[];
-  likes: number;
-  dislikes: number;
-  comments: number;
-  createdAt: Date;
   isClickable?: boolean;
 }
 
-function Post({
-  id,
-  user: author,
-  session,
-  title,
-  body,
-  images,
-  likes,
-  dislikes,
-  comments,
-  createdAt,
-  isClickable = false,
-}: PostProps) {
-  const [isCommentFormVisible, setIsCommentFormVisible] = React.useState(false);
+function Post({ postData, session, isClickable = false }: PostProps) {
+  const {
+    id,
+    author,
+    title,
+    body,
+    images,
+    likesCount: likes,
+    dislikesCount: dislikes,
+    commentsCount: comments,
+    createdAt,
+  } = postData;
   const [highlightClass, setHighlightClass] = React.useState("");
   const utils = api.useContext();
   const router = useRouter();
@@ -62,18 +51,25 @@ function Post({
     <div
       className={`${highlightClass} relative flex-col overflow-hidden rounded border-[#2d3748] bg-zinc-800 text-white shadow-md`}
       onClick={(e) => {
-        if ((e.target as HTMLElement).tagName === "DIV") {
-          if (isClickable) {
-            void router.push(`/${author?.username as string}/${id}`);
-          }
-        } else {
+        // TODO: idk if this is the best way to do this
+        // some tagnames are weird and only work as lowercase
+        if (
+          (e.target as HTMLElement).tagName === "BUTTON" ||
+          (e.target as HTMLElement).tagName === "svg" ||
+          (e.target as HTMLElement).tagName === "path" ||
+          (e.target as HTMLElement).tagName === "SPAN"
+        ) {
           e.stopPropagation();
+        } else {
+          if (isClickable) {
+            void router.push(`/${author.username ?? ""}/${id}`);
+          }
         }
       }}
     >
       <div className="pt-6 pr-6 pl-6">
         <div className="flex justify-between">
-          <Link href={`/user/${author?.username || ""}`}>
+          <Link href={`/user/${author.username ?? ""}`}>
             <div className="flex items-center gap-x-3">
               <Image
                 alt="profile"
@@ -82,7 +78,7 @@ function Post({
                 height={50}
                 width={50}
               />
-              <div>{author?.username}</div>
+              <span>{author?.username}</span>
             </div>
           </Link>
           <Dropdown>
@@ -105,7 +101,7 @@ function Post({
         <div className="mt-5 w-full text-white ">
           <div className="text-3xl">{title}</div>
           <Linkify>
-            <div className="whitespace-pre-line">{body}</div>
+            <span className="whitespace-pre-line">{body}</span>
           </Linkify>
         </div>
       </div>
@@ -116,28 +112,28 @@ function Post({
         <div className="flex flex-row items-center gap-x-5">
           <div className="flex items-center gap-x-2">
             <LikeButton id={id} />
-            <span>{likes}</span>
+            {likes}
           </div>
           <div className="flex items-center gap-x-2">
             <DislikeButton id={id} />
-            <span>{dislikes}</span>
+            {dislikes}
           </div>
-          <button
-            type="button"
+          <div
             className="flex items-center gap-x-2"
             onClick={() => {
-              setIsCommentFormVisible(!isCommentFormVisible);
+              if (isClickable) {
+                void router.push(`/${author.username ?? ""}/${id}`);
+              }
             }}
           >
             <FaRegCommentAlt size={20} />
-            <span>{comments}</span>
-          </button>
+            {comments}
+          </div>
           <div>
-            <span>{createdAt.toLocaleString()}</span>
+            <span>{createdAt?.toLocaleString()}</span>
           </div>
         </div>
       </div>
-      {isCommentFormVisible && <CommentForm postId={id} />}
     </div>
   );
 }

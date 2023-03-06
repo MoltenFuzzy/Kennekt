@@ -104,19 +104,7 @@ const Profile: NextPage = () => {
           </div>
           <div className="grid grid-cols-2 gap-5 ">
             {posts.data?.map((post, index) => (
-              <Post
-                key={index}
-                id={post.id}
-                user={post.author}
-                session={sessionData}
-                title={post.title}
-                body={post.body}
-                images={post.images}
-                likes={post.likesCount}
-                dislikes={post.dislikesCount}
-                comments={post.commentsCount}
-                createdAt={post.createdAt}
-              />
+              <Post key={index} postData={post} session={sessionData} />
             ))}
           </div>
         </div>

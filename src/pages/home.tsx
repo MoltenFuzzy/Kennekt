@@ -94,17 +94,9 @@ export default function Home() {
             {userPosts.map((post, index) => (
               <Post
                 key={index}
-                id={post.id}
-                user={post.author}
+                postData={post}
                 session={sessionData}
-                title={post.title}
-                images={post.images}
-                body={post.body}
-                likes={post.likesCount}
-                dislikes={post.dislikesCount}
-                comments={post.commentsCount}
-                createdAt={post.createdAt}
-                isClickable={true}
+                isClickable
               />
             ))}
           </div>

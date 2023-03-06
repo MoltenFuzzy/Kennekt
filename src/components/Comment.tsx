@@ -13,21 +13,10 @@ const Comment: React.FC<CommentProps> = ({ commentData }) => {
   };
 
   return (
-    <>
-      <div className="relative flex-col overflow-hidden rounded border-[#2d3748] bg-zinc-800 p-6 text-white shadow-md">
-        <span>{commentData.author.username}: </span>
-        <span>{commentData.text}</span>
-      </div>
-      {commentData.replies.length > 0 && (
-        <button type="button" onClick={toggleReplies}>
-          {showReplies ? "Hide Replies" : "Show Replies"}
-        </button>
-      )}
-      {/* {showReplies &&
-        comment.replies.map((reply) => (
-          <Comment key={reply.id} comment={reply} />
-        ))} */}
-    </>
+    <div className="relative flex-col overflow-hidden rounded border-[#2d3748] bg-zinc-800 p-6 text-white shadow-md">
+      <span>{commentData.author.username}: </span>
+      <span>{commentData.text}</span>
+    </div>
   );
 };
 

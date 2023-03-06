@@ -10,10 +10,15 @@ export const postRouter = createTRPCRouter({
   getOne: publicProcedure
     .input(z.object({ id: z.string() }))
     .query(async ({ ctx, input }) => {
-      const post = await ctx.prisma.post.findUnique({
+      const post = await ctx.prisma.post.findUniqueOrThrow({
         where: { id: input.id },
-        // joins the author, images, and comments tables
-        include: { author: true, images: true },
+        // joins the tables
+        include: {
+          author: true,
+          images: true,
+          // likedBy: true,
+          // dislikedBy: true,
+        },
       });
 
       await embedPostImageUrls([post as FullPost]);
@@ -94,10 +99,11 @@ export const postRouter = createTRPCRouter({
 
       // delete images from s3 bucket
       for (const image of post.images) {
+        if (image.postId === null) continue;
         s3.deleteObject(
           {
             Bucket: env.AWS_BUCKET_NAME,
-            Key: `${image.userId}/${image?.postId as string}/${image.id}`,
+            Key: `${image.userId}/${image.postId}/${image.id}`,
           },
           (err) => {
             if (err) {
