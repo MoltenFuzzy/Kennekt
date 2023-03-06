@@ -21,7 +21,7 @@ export const postRouter = createTRPCRouter({
         },
       });
 
-      await embedPostImageUrls([post as FullPost]);
+      await embedPostImageUrls([post]);
       return post;
     }),
   getAllFromUser: publicProcedure
