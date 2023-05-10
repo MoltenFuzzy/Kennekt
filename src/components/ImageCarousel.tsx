@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import type { Image as ImageType } from "@prisma/client";
 import Image from "next/image";
 import { AiOutlineLeft } from "react-icons/ai";
@@ -65,7 +65,7 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({ images }) => {
             width="0"
             height="0"
             sizes="256px"
-            className="h-[70%] w-[70%]"
+            className="h-[60%] w-[60%]"
             unoptimized
           />
         </SwiperSlide>

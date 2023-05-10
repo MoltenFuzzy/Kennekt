@@ -57,11 +57,43 @@ export const postRouter = createTRPCRouter({
       include: { author: true, images: true },
     });
 
+    // ! NOTE: presigned urls are only valid for X minutes, so we need to get the urls
     // loop through posts and get signed urls for each image
     // then add the url to each image object in each post(NOTE: not stored in db)
     await embedPostImageUrls(posts);
     return posts;
   }),
+  infinitePosts: publicProcedure
+    .input(
+      z.object({
+        limit: z.number().min(1).max(100).nullish(),
+        cursor: z.string().nullish(), // <-- "cursor" needs to exist, but can be any type
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      const limit = input.limit ?? 5;
+      const { cursor } = input;
+      const posts = await ctx.prisma.post.findMany({
+        take: limit + 1, // get an extra item at the end which we'll use as next cursor
+        cursor: cursor ? { id: cursor } : undefined,
+        orderBy: {
+          createdAt: "desc",
+        },
+        include: { author: true, images: true },
+      });
+
+      // ! NOTE: presigned urls are only valid for X minutes, so we need to get the urls
+      // loop through posts and get signed urls for each image
+      // then add the url to each image object in each post(NOTE: not stored in db)
+      await embedPostImageUrls(posts);
+
+      const nextCursor = posts.pop()?.id ?? null;
+
+      return {
+        posts,
+        nextCursor,
+      };
+    }),
   createOne: protectedProcedure
     .input(
       z.object({

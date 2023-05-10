@@ -5,7 +5,6 @@ import type {
 } from "next";
 import { type NextPage } from "next";
 import Head from "next/head";
-import NavBar from "../components/NavBar";
 import { unstable_getServerSession } from "next-auth";
 import { authOptions } from "./api/auth/[...nextauth]";
 
@@ -17,9 +16,7 @@ const Landing: NextPage = () => {
         <meta name="description" content="Kennekt with comrades" />
         <link rel="icon" href={"/logo.png"} />
       </Head>
-      <main>
-        <NavBar />
-      </main>
+      <main>Landing Page for Kennekt</main>
     </>
   );
 };

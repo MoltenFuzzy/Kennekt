@@ -68,6 +68,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
 }
 
 const Profile: NextPage = () => {
+  const [isFollowing, setIsFollowing] = React.useState(false);
   const router = useRouter();
 
   const { data: sessionData } = useSession();
@@ -82,9 +83,18 @@ const Profile: NextPage = () => {
     username: router.query.username as string,
   });
 
+  const { mutate: followUser } = api.user.followUser.useMutation();
+  const { data: isFollowingUser } = api.user.isFollowing.useQuery({
+    id: user.data?.id as string,
+  });
+
+  React.useEffect(() => {
+    if (!isFollowingUser) return;
+    setIsFollowing(isFollowingUser);
+  }, [isFollowing, isFollowingUser]);
+
   return (
     <>
-      <Navbar user={sessionData?.user} />
       <div className="min-h-screen  bg-[radial-gradient(ellipse_at_bottom_right,_var(--tw-gradient-stops))] from-slate-900 via-slate-800 to-zinc-900 dark:text-white">
         <div className="container mx-auto min-h-screen bg-zinc-900 p-6 md:w-2/3">
           <div className="mb-5 flex flex-col justify-center gap-x-5 sm:flex-row sm:justify-start">
@@ -102,10 +112,27 @@ const Profile: NextPage = () => {
               </h2>
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-5 ">
-            {posts.data?.map((post, index) => (
-              <Post key={index} postData={post} session={sessionData} />
-            ))}
+          <div className="grid grid-cols-7">
+            <div className="col-span-3">
+              {user.data?.id !== sessionData?.user?.id && (
+                <button
+                  type="button"
+                  className="rounded-md bg-zinc-800 px-4 py-2 text-white hover:bg-slate-600"
+                  onClick={() => {
+                    followUser({
+                      id: user.data?.id as string,
+                    });
+                  }}
+                >
+                  {isFollowing ? "Unfollow" : "Follow"}
+                </button>
+              )}
+            </div>
+            <div className="col-span-4 flex flex-col gap-y-5">
+              {posts.data?.map((post, index) => (
+                <Post key={index} postData={post} session={sessionData} />
+              ))}
+            </div>
           </div>
         </div>
       </div>

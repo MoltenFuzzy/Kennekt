@@ -53,7 +53,8 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
    * `prefetch` does not return the result and never throws - if you need that behavior, use `fetch` instead.
    */
   // await ssg.post.byId.prefetch({ id });
-  await ssg.post.getAll.prefetch();
+  // await ssg.post.getAll.prefetch();
+  await ssg.post.infinitePosts.fetchInfinite({ limit: 5 });
 
   return {
     props: { trpcState: ssg.dehydrate(), session },
@@ -62,11 +63,21 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
 
 export default function Home() {
   const { data: sessionData } = useSession();
-  const { data: postsData } = api.post.getAll.useQuery(undefined, {
-    enabled: true,
-  });
+  // const { data: allPostData } = api.post.getAll.useQuery(undefined, {
+  //   enabled: true,
+  // });
+  const { data: postsData, fetchNextPage } =
+    api.post.infinitePosts.useInfiniteQuery(
+      {
+        limit: 5,
+      },
+      {
+        getNextPageParam: (lastPage) => lastPage.nextCursor,
+      }
+    );
+
   const {
-    posts: userPosts,
+    posts: currentUserPosts,
     setPosts,
     postsOptimisticUpdateApplied,
   } = useAppStore((state) => state);
@@ -74,24 +85,46 @@ export default function Home() {
   useEffect(() => {
     // I want userPosts to be updated with the refetched postsData when the user tabs out of the page
     // the refetched postsData will have the new post from the current user
-    if (postsData) {
+    if (postsData?.pages) {
       if (!postsOptimisticUpdateApplied) {
         // set the posts to the store, since we are using the store to display the posts
-        setPosts(postsData);
+        // const firstPagePosts = postsData?.pages?.[0]?.posts ?? [];
+        const allPosts = postsData?.pages?.flatMap((page) => page.posts) ?? [];
+        // setPosts(firstPagePosts);
+        setPosts(allPosts);
       }
     }
+    // console.log(postsData?.pages);
+    // console.log(postsData?.pages.at(0)?.posts);
   }, [postsData, postsOptimisticUpdateApplied, setPosts]);
+
+  useEffect(() => {
+    window.addEventListener("scroll", handleScroll);
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
+
+  function handleScroll() {
+    const { scrollTop, clientHeight, scrollHeight } = document.documentElement;
+    if (scrollTop + clientHeight >= scrollHeight) {
+      // gets last page and checks if the last page has any posts
+      // if posts size is 0, then we don't need to fetch next page
+      if (postsData?.pages.at(-1)?.posts.length !== 0) {
+        void fetchNextPage();
+      }
+    }
+  }
 
   return (
     <>
-      <NavBar user={sessionData?.user} />
       <div className="xs:grid-cols-3 grid grid-cols-1 gap-y-5 sm:grid-cols-3 lg:grid-cols-10 lg:gap-x-0 xl:gap-x-20">
-        {sessionData?.user?.username ? null : <Modal title={"Setup Profile"} />}
         <div className="col-span-3 hidden text-center text-white lg:block "></div>
         <div className="col-span-4">
           <div className="container mx-auto mt-2 grid grid-cols-1 gap-y-4 p-3 sm:p-0 sm:pt-2">
             <PostForm />
-            {userPosts.map((post, index) => (
+            {currentUserPosts.map((post, index) => (
               <Post
                 key={index}
                 postData={post}

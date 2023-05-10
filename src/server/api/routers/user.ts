@@ -38,8 +38,8 @@ export const userRouter = createTRPCRouter({
           email: true,
           image: true,
           role: true,
-          followedBy: true,
-          following: true,
+          followers: true,
+          followings: true,
           likedPosts: true,
           createdAt: true,
         },
@@ -106,7 +106,61 @@ export const userRouter = createTRPCRouter({
       }
     }),
 
-  followUser: protectedProcedure.mutation(({ ctx }) => {
-    return "";
-  }),
+  followUser: protectedProcedure
+    .input(
+      z.object({
+        id: z.string(),
+      })
+    )
+    .mutation(({ ctx, input }) => {
+      // TODO: prevent user from following themselves
+      // TODO: prevent user from following the same user twice
+      // TODO: prevent user from following a user that doesn't exist
+      // TODO: unfollow user if already following
+      return ctx.prisma.user.update({
+        where: {
+          id: ctx.session.user.id,
+        },
+        data: {
+          follower: {
+            connect: {
+              id: input.id, // id of the user to follow
+            },
+          },
+        },
+      });
+    }),
+  // takes in the id of the user to check if the current session user is following
+  isFollowing: protectedProcedure
+    .input(
+      z.object({
+        id: z.string(),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      const test = await ctx.prisma.user.findUnique({
+        where: {
+          id: input.id,
+        },
+        select: {
+          followers: {
+            where: {
+              id: ctx.session.user.id,
+            },
+          },
+        },
+      });
+      console.log(test);
+
+      if (test) {
+        // if the current session user is following the user
+        for (const follower of test.followers) {
+          //! idk why this is throwing an error
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+          return follower.id === ctx.session.user.id;
+        }
+      }
+
+      return false;
+    }),
 });

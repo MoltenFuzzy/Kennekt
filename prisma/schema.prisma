@@ -58,24 +58,28 @@ model User {
     comments         Comment[]
     sessions         Session[]
     // many to many
-    followedBy       Follows[] @relation("following")
-    following        Follows[] @relation("follower")
-    // many to many
     likedPosts       Post[]    @relation("likedPosts")
     dislikedPosts    Post[]    @relation("dislikedPosts")
     likedComments    Comment[] @relation("likedComments")
     dislikedComments Comment[] @relation("dislikedComments")
     createdAt        DateTime  @default(now())
+    // many to many
+    followers        User[]    @relation("follower")
+    followings       User[]    @relation("following")
+    follower         User?     @relation("follower", fields: [followerId], references: [id], onDelete: Cascade)
+    followerId       String?
+    following        User?     @relation("following", fields: [followingId], references: [id], onDelete: Cascade)
+    followingId      String?
 }
 
-model Follows {
-    follower    User   @relation("follower", fields: [followerId], references: [id])
-    followerId  String
-    following   User   @relation("following", fields: [followingId], references: [id])
-    followingId String
+// model Follows {
+//     follower    User   @relation("follower", fields: [followerId], references: [id])
+//     followerId  String
+//     following   User   @relation("following", fields: [followingId], references: [id])
+//     followingId String
 
-    @@id([followerId, followingId])
-}
+//     @@id([followerId, followingId])
+// }
 
 model Post {
     id            String    @id @default(cuid())

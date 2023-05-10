@@ -43,13 +43,15 @@ function Post({ postData, session, isClickable = false }: PostProps) {
 
   useEffect(() => {
     if (isClickable) {
-      setHighlightClass("border hover:border-zinc-600");
+      setHighlightClass(
+        "border hover:border-zinc-600 hover:shadow-lg cursor-pointer animate__animated animate__fadeIn animate__faster"
+      );
     }
   }, [isClickable]);
 
   return (
     <div
-      className={`${highlightClass} relative flex-col overflow-hidden rounded border-[#2d3748] bg-zinc-800 text-white shadow-md`}
+      className={`${highlightClass} relative h-fit flex-col overflow-hidden rounded border-[#2d3748] bg-zinc-800 text-white shadow-md `}
       onClick={(e) => {
         // TODO: idk if this is the best way to do this
         // some tagnames are weird and only work as lowercase
@@ -99,9 +101,9 @@ function Post({ postData, session, isClickable = false }: PostProps) {
           </Dropdown>
         </div>
         <div className="mt-5 w-full text-white ">
-          <div className="text-3xl">{title}</div>
+          <div className="text-xl font-medium">{title}</div>
           <Linkify>
-            <span className="whitespace-pre-line">{body}</span>
+            <span className="whitespace-pre-line text-sm">{body}</span>
           </Linkify>
         </div>
       </div>
