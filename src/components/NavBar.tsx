@@ -6,6 +6,7 @@ import type { Session } from "next-auth";
 import HamburgerMenu from "./Hamburger";
 import { useSession } from "next-auth/react";
 import UserSearchDropdown from "./SearchBarDropDown";
+import PostFormModal from "./PostFormModal";
 
 export interface NavBarProps {
   user?: Session["user"];
@@ -30,7 +31,7 @@ function NavBar({ user }: NavBarProps) {
           <Link href="/login">
             <button
               type="button"
-              className="rounded-lg bg-gradient-to-r from-teal-400 via-teal-500 to-teal-600 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-gradient-to-br focus:outline-none focus:ring-4 focus:ring-teal-300 dark:focus:ring-teal-800"
+              className="transform rounded-md bg-teal-600 px-4 py-2 text-sm font-medium text-white transition duration-300 ease-in-out hover:-translate-y-0.5 hover:bg-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-400 focus:ring-offset-2"
             >
               Login
             </button>
@@ -38,7 +39,7 @@ function NavBar({ user }: NavBarProps) {
           <Link href="/register">
             <button
               type="button"
-              className=" rounded-lg bg-gradient-to-r from-teal-400 via-teal-500 to-teal-600 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-gradient-to-br focus:outline-none focus:ring-4 focus:ring-teal-300 dark:focus:ring-teal-800"
+              className="transform rounded-md bg-teal-600 px-4 py-2 text-sm font-medium text-white transition duration-300 ease-in-out hover:-translate-y-0.5 hover:bg-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-400 focus:ring-offset-2"
             >
               Register
             </button>
@@ -58,14 +59,15 @@ function NavBar({ user }: NavBarProps) {
           </Link>
         </div>
         <UserSearchDropdown userList={["test", "test2"]} />
-        <div className="hidden basis-1/4 items-center justify-center sm:flex">
+        <div className="hidden basis-1/4 items-center justify-center gap-4 sm:flex">
+          <PostFormModal />
           <Link href={`/user/${sessionData?.user?.username as string}`}>
             <Image
               alt="profile"
               src={user?.image || defaultPicture.src}
               height={40}
               width={40}
-              className="cursor-pointer rounded-full"
+              className="cursor-pointer rounded-full transition duration-300 ease-in-out hover:opacity-80"
             />
           </Link>
         </div>

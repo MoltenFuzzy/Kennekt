@@ -1,18 +1,20 @@
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
-import type { FullPost } from "../types/types";
+import type { RouterOutputs } from "../utils/api";
+
+type FullPost = RouterOutputs["post"]["getOneWithAll"];
 
 // used zustand to create a global store for new posts that are created
-interface AppState {
+interface HomePageState {
   postsOptimisticUpdateApplied: boolean;
   setPostsOptimisticUpdateApplied: (
     postsOptimisticUpdateApplied: boolean
   ) => void;
-  posts: FullPost[];
-  setPosts: (setPosts: FullPost[]) => void;
+  posts: Map<string, FullPost>; // used to test the optimistic update
+  setPosts: (posts: Map<string, FullPost>) => void;
 }
 
-const useAppStore = create<AppState>()(
+const useHomePageStore = create<HomePageState>()(
   devtools((set) => ({
     postsOptimisticUpdateApplied: false,
     setPostsOptimisticUpdateApplied: (postsOptimisticUpdateApplied) =>
@@ -20,7 +22,7 @@ const useAppStore = create<AppState>()(
         ...state,
         postsOptimisticUpdateApplied,
       })),
-    posts: [],
+    posts: new Map<string, FullPost>(),
     setPosts: (posts) =>
       set((state) => ({
         ...state,
@@ -29,4 +31,4 @@ const useAppStore = create<AppState>()(
   }))
 );
 
-export default useAppStore;
+export default useHomePageStore;

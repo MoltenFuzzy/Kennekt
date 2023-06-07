@@ -7,8 +7,7 @@ module.exports = {
         sora: ["Sora", "sans-serif"],
         libre: ["Libre Baskerville"],
       },
-      colors: {
-      },
+      colors: {},
       minWidth: {
         "1/4": "25%",
         "1/2": "50%",

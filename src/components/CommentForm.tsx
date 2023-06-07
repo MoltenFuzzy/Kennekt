@@ -22,7 +22,7 @@ const CommentForm: React.FC<CommentFormProps> = ({ postId }) => {
 
   const onSubmit = ({ text }: CommentSubmitForm) => {
     console.log(text);
-    createComment.mutate({ postId: postId || "", text });
+    createComment.mutate({ postId: postId || "", content: text });
     reset();
   };
 

@@ -5,20 +5,20 @@ import type {
 } from "next";
 import { useSession } from "next-auth/react";
 import { createProxySSGHelpers } from "@trpc/react-query/ssg";
-import NavBar from "../components/NavBar";
 import { unstable_getServerSession } from "next-auth";
 import { authOptions } from "./api/auth/[...nextauth]";
-import Modal from "../components/Modal";
-import PostForm from "../components/PostForm";
 import React, { useEffect } from "react";
 import { createTRPCContext } from "../server/api/trpc";
 import { appRouter } from "../server/api/root";
 import type { CreateNextContextOptions } from "@trpc/server/adapters/next";
+import type { RouterOutputs } from "../utils/api";
 import { api } from "../utils/api";
 import superjson from "superjson";
-import useAppStore from "../stores/app";
+import useHomePageStore from "../stores/home-page";
 import Sidebar from "../components/Sidebar";
 import Post from "../components/Post";
+
+type FullPost = RouterOutputs["post"]["getOneWithAll"];
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   const session = await unstable_getServerSession(
@@ -80,7 +80,7 @@ export default function Home() {
     posts: currentUserPosts,
     setPosts,
     postsOptimisticUpdateApplied,
-  } = useAppStore((state) => state);
+  } = useHomePageStore((state) => state);
 
   useEffect(() => {
     // I want userPosts to be updated with the refetched postsData when the user tabs out of the page
@@ -89,9 +89,14 @@ export default function Home() {
       if (!postsOptimisticUpdateApplied) {
         // set the posts to the store, since we are using the store to display the posts
         // const firstPagePosts = postsData?.pages?.[0]?.posts ?? [];
-        const allPosts = postsData?.pages?.flatMap((page) => page.posts) ?? [];
-        // setPosts(firstPagePosts);
+        const allPosts = new Map<string, FullPost>(
+          postsData?.pages
+            ?.flatMap((page) => page.posts)
+            .map((post) => [post.id, post]) ?? []
+        );
         setPosts(allPosts);
+        // const allPosts = postsData?.pages?.flatMap((page) => page.posts) ?? [];
+        // setPosts(firstPagePosts);
       }
     }
     // console.log(postsData?.pages);
@@ -104,10 +109,16 @@ export default function Home() {
     return () => {
       window.removeEventListener("scroll", handleScroll);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    console.log(currentUserPosts);
+  }, [currentUserPosts]);
 
   function handleScroll() {
     const { scrollTop, clientHeight, scrollHeight } = document.documentElement;
+    // const test = (4 / 5) * scrollHeight;
     if (scrollTop + clientHeight >= scrollHeight) {
       // gets last page and checks if the last page has any posts
       // if posts size is 0, then we don't need to fetch next page
@@ -119,12 +130,11 @@ export default function Home() {
 
   return (
     <>
-      <div className="xs:grid-cols-3 grid grid-cols-1 gap-y-5 sm:grid-cols-3 lg:grid-cols-10 lg:gap-x-0 xl:gap-x-20">
-        <div className="col-span-3 hidden text-center text-white lg:block "></div>
-        <div className="col-span-4">
-          <div className="container mx-auto mt-2 grid grid-cols-1 gap-y-4 p-3 sm:p-0 sm:pt-2">
-            <PostForm />
-            {currentUserPosts.map((post, index) => (
+      <div className="grid grid-cols-1 lg:grid-cols-8 xl:grid-cols-12">
+        <div className="hidden xl:col-span-3 xl:block"></div>
+        <div className="lg:col-span-6 xl:col-span-6">
+          <div className="container mx-auto mt-2 grid grid-cols-1 gap-y-4 p-3 ">
+            {[...currentUserPosts.values()].map((post, index) => (
               <Post
                 key={index}
                 postData={post}
@@ -134,10 +144,38 @@ export default function Home() {
             ))}
           </div>
         </div>
-        <div className="col-span-3 hidden flex-none sm:block">
-          <Sidebar session={sessionData} />
+        <div className="lg:col-span-2 xl:col-span-3">
+          <Sidebar
+            className="fixed top-0 right-0 hidden h-screen flex-col bg-[#202023] text-white lg:flex lg:w-64"
+            session={sessionData}
+          />
         </div>
       </div>
     </>
   );
+
+  // old code
+  // return (
+  //   <>
+  //     <div className="xs:grid-cols-3 grid grid-cols-1 gap-y-5 sm:grid-cols-3 lg:grid-cols-10 lg:gap-x-0 xl:gap-x-20">
+  //       <div className="col-span-3 hidden text-center text-white lg:block "></div>
+  //       <div className="col-span-4">
+  //         <div className="container mx-auto mt-2 grid grid-cols-1 gap-y-4 p-3 sm:p-0 sm:pt-2">
+  //           {/* <PostForm /> */}
+  //           {currentUserPosts.map((post, index) => (
+  //             <Post
+  //               key={index}
+  //               postData={post}
+  //               session={sessionData}
+  //               isClickable
+  //             />
+  //           ))}
+  //         </div>
+  //       </div>
+  //       <div className="col-span-3 hidden flex-none sm:block">
+  //         <Sidebar session={sessionData} />
+  //       </div>
+  //     </div>
+  //   </>
+  // );
 }

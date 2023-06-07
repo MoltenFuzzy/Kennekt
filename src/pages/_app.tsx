@@ -5,7 +5,7 @@ import { SessionProvider } from "next-auth/react";
 import { api } from "../utils/api";
 
 import "../styles/globals.css";
-import Modal from "../components/Modal";
+import UsernameModal from "../components/UsernameModal";
 import NavBar from "../components/NavBar";
 
 const MyApp: AppType<{ session: Session | null }> = ({
@@ -16,7 +16,7 @@ const MyApp: AppType<{ session: Session | null }> = ({
     <SessionProvider session={session}>
       <NavBar user={session?.user} />
       {session && session.user?.username === null ? (
-        <Modal title={"Pick a Username"} />
+        <UsernameModal title={"Pick a Username"} />
       ) : null}
       <Component {...pageProps} />
     </SessionProvider>

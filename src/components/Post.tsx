@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { use, useEffect } from "react";
 import Image from "next/image";
 import type { Session } from "next-auth";
 import defaultPicture from "../../images/user.png";
@@ -13,6 +13,8 @@ import { useRouter } from "next/router";
 import type { RouterOutputs } from "../utils/api";
 import Linkify from "react-linkify";
 import "animate.css";
+import useHomePageStore from "../stores/home-page";
+import { useSession } from "next-auth/react";
 
 interface PostProps {
   postData: RouterOutputs["post"]["getOne"];
@@ -22,7 +24,7 @@ interface PostProps {
 
 function Post({ postData, session, isClickable = false }: PostProps) {
   const {
-    id,
+    id: postId,
     author,
     title,
     body,
@@ -32,6 +34,8 @@ function Post({ postData, session, isClickable = false }: PostProps) {
     commentsCount: comments,
     createdAt,
   } = postData;
+  const { data: sessionData } = useSession();
+  const { posts: currentUserPosts } = useHomePageStore((state) => state);
   const [highlightClass, setHighlightClass] = React.useState("");
   const utils = api.useContext();
   const router = useRouter();
@@ -49,6 +53,34 @@ function Post({ postData, session, isClickable = false }: PostProps) {
     }
   }, [isClickable]);
 
+  useEffect(() => {
+    // if likedBy array changes, update the post
+  }, [currentUserPosts.get(postId)?.likedBy]);
+
+  const checkIfLiked = () => {
+    if (currentUserPosts) {
+      const post = currentUserPosts.get(postId);
+      //! likedBy array will be empty on intial posts
+      const testLike = post?.likedBy?.some(
+        (user) => user.id === sessionData?.user?.id
+      );
+      return testLike ?? false;
+    }
+    return false;
+  };
+
+  const checkIfDisliked = () => {
+    if (currentUserPosts) {
+      const post = currentUserPosts.get(postId);
+      //! likedBy array will be empty on intial posts
+      const testDislike = post?.dislikedBy?.some(
+        (user) => user.id === sessionData?.user?.id
+      );
+      return testDislike ?? false;
+    }
+    return false;
+  };
+
   return (
     <div
       className={`${highlightClass} relative h-fit flex-col overflow-hidden rounded border-[#2d3748] bg-zinc-800 text-white shadow-md `}
@@ -64,7 +96,7 @@ function Post({ postData, session, isClickable = false }: PostProps) {
           e.stopPropagation();
         } else {
           if (isClickable) {
-            void router.push(`/${author.username ?? ""}/${id}`);
+            void router.push(`/${author.username ?? ""}/${postId}`);
           }
         }
       }}
@@ -88,7 +120,7 @@ function Post({ postData, session, isClickable = false }: PostProps) {
               <>
                 <Dropdown.Item
                   onClick={() => {
-                    deletePost.mutate({ id });
+                    deletePost.mutate({ id: postId });
                   }}
                 >
                   Delete
@@ -101,9 +133,9 @@ function Post({ postData, session, isClickable = false }: PostProps) {
           </Dropdown>
         </div>
         <div className="mt-5 w-full text-white ">
-          <div className="text-xl font-medium">{title}</div>
+          <div className="mb-3 text-xl font-medium">{title}</div>
           <Linkify>
-            <span className="whitespace-pre-line text-sm">{body}</span>
+            <span className="text-md whitespace-pre-line">{body}</span>
           </Linkify>
         </div>
       </div>
@@ -113,18 +145,22 @@ function Post({ postData, session, isClickable = false }: PostProps) {
       <div className="pb-6 pr-6 pl-6">
         <div className="flex flex-row items-center gap-x-5">
           <div className="flex items-center gap-x-2">
-            <LikeButton id={id} />
-            {likes}
-          </div>
-          <div className="flex items-center gap-x-2">
-            <DislikeButton id={id} />
-            {dislikes}
+            <LikeButton
+              id={postId}
+              likes={likes}
+              userHasLiked={checkIfLiked()}
+            />
+            <DislikeButton
+              id={postId}
+              dislikes={dislikes}
+              userHasDisliked={checkIfDisliked()}
+            />
           </div>
           <div
             className="flex items-center gap-x-2"
             onClick={() => {
               if (isClickable) {
-                void router.push(`/${author.username ?? ""}/${id}`);
+                void router.push(`/${author.username ?? ""}/${postId}`);
               }
             }}
           >

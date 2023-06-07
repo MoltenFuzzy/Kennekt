@@ -84,7 +84,7 @@ model User {
 model Post {
     id            String    @id @default(cuid())
     title         String    @db.VarChar(255)
-    body          String    @db.Text
+    body          String?   @db.Text
     images        Image[]
     likesCount    Int       @default(0)
     dislikesCount Int       @default(0)
@@ -119,12 +119,12 @@ model Image {
 // TODO: https://stackoverflow.com/questions/70095411/i-want-to-use-prisma-to-store-nested-comments-like-on-reddit-how-can-i-retrie
 model Comment {
     id              String    @id @default(cuid())
-    text            String    @db.VarChar(255)
+    content         String    @db.VarChar(255)
     published       Boolean   @default(false)
     authorId        String
     author          User      @relation(fields: [authorId], references: [id])
     postId          String
-    post            Post      @relation(fields: [postId], references: [id])
+    post            Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
     likesCount      Int       @default(0)
     likedBy         User[]    @relation("likedComments")
     dislikesCount   Int       @default(0)

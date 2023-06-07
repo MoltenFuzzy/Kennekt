@@ -1,5 +1,5 @@
 import React from "react";
-import Modal from "../../components/Modal";
+import UsernameModal from "../../components/UsernameModal";
 import NavBar from "../../components/NavBar";
 import Post from "../../components/Post";
 import Sidebar from "../../components/Sidebar";
@@ -20,6 +20,9 @@ import { authOptions } from "../api/auth/[...nextauth]";
 import superjson from "superjson";
 import { api } from "../../utils/api";
 import CommentForm from "../../components/CommentForm";
+import { TbSquareRoundedArrowLeftFilled } from "react-icons/tb";
+import { useRouter } from "next/router";
+import CommentSection from "../../components/CommentSection";
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   const session = await unstable_getServerSession(
@@ -66,6 +69,7 @@ export default function PostPage(
 ) {
   const { postId } = props;
   const { data: sessionData } = useSession();
+  const router = useRouter();
 
   const {
     data: postData,
@@ -73,10 +77,10 @@ export default function PostPage(
     error,
   } = api.post.getOne.useQuery({ id: postId }, { enabled: true });
 
-  const { data: postComments } = api.comment.getAllFromPost.useQuery(
-    { postId },
-    { enabled: true }
-  );
+  // const { data: postComments } = api.comment.getAllFromPost.useQuery(
+  //   { postId },
+  //   { enabled: true }
+  // );
 
   // TODO: Add better error handling
   if (isError || !postData) {
@@ -87,19 +91,34 @@ export default function PostPage(
 
   return (
     <>
-      <div className="xs:grid-cols-3 grid grid-cols-1 gap-y-5 sm:grid-cols-2 lg:grid-cols-4 lg:gap-x-0 xl:gap-x-20">
-        <div className="col-span-1 hidden text-center text-white lg:block "></div>
-        <div className="col-span-2">
-          <div className="container mx-auto mt-2 grid grid-cols-1 gap-y-4 p-3 sm:p-0 sm:pt-2">
+      <div className="grid grid-cols-1 lg:grid-cols-8 xl:grid-cols-12">
+        <div className="hidden xl:col-span-3 xl:block"></div>
+        <div className="lg:col-span-6 xl:col-span-6">
+          <div className="container mx-auto mt-2 grid grid-cols-1 gap-y-4 p-3 ">
+            <div className="flex justify-start">
+              <button className="">
+                <TbSquareRoundedArrowLeftFilled
+                  color="#255bcf"
+                  size={25}
+                  onClick={() => {
+                    router.back();
+                  }}
+                />
+              </button>
+            </div>
             <Post postData={postData} session={sessionData} />
-            <CommentForm postId={postData.id} />
-            {postComments?.map((data) => (
+            {/* <CommentForm postId={postData.id} /> */}
+            {/* {postComments?.map((data) => (
               <Comment key={data.id} commentData={data} />
-            ))}
+            ))} */}
+            <CommentSection postId={postData.id} />
           </div>
         </div>
-        <div className="col-span-1 hidden flex-none md:block">
-          <Sidebar session={sessionData} />
+        <div className="lg:col-span-2 xl:col-span-3">
+          <Sidebar
+            className="fixed top-0 right-0 hidden h-screen flex-col bg-[#202023] text-white lg:flex lg:w-64"
+            session={sessionData}
+          />
         </div>
       </div>
     </>

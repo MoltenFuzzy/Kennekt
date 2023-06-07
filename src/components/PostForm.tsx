@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import useAppStore from "../stores/app";
-import type { FullPost } from "../types/types";
+import useHomePageStore from "../stores/home-page";
+import type { RouterOutputs } from "../utils/api";
 import { api } from "../utils/api";
 import { useForm } from "react-hook-form";
 import type { Image as ImageType } from "@prisma/client";
@@ -8,15 +8,21 @@ import Image from "next/image";
 import config from "../config/config";
 import { useSession } from "next-auth/react";
 
+type FullPost = RouterOutputs["post"]["getOneWithAll"];
+
 type PostSubmitForm = {
   title: string;
-  body: string;
+  body?: string;
 };
 
-function PostForm() {
+interface PostFormProps {
+  onSuccess?(): void;
+}
+
+function PostForm({ onSuccess }: PostFormProps) {
   const { data: session } = useSession();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { posts, setPosts, setPostsOptimisticUpdateApplied } = useAppStore(
+  const { posts, setPosts, setPostsOptimisticUpdateApplied } = useHomePageStore(
     (state) => state
   );
   const [imagesInput, setImagesInput] = useState<File[]>([]);
@@ -33,7 +39,7 @@ function PostForm() {
     api.image.createPresignedUrl.useMutation();
 
   const onSubmit = ({ title, body }: PostSubmitForm) => {
-    const bodyInput = body.replace(/(?:(?:\r\n|\r|\n)\s*){2}/gm, ""); // removes empty lines
+    const bodyInput = body?.replace(/(?:(?:\r\n|\r|\n)\s*){2}/gm, ""); // removes empty lines
 
     if (imagesInput.length > config.MAX_UPLOAD_FILES) {
       setImagesInput([]); // Empty the images array upon submit
@@ -47,7 +53,7 @@ function PostForm() {
       }
       if (file.size > config.MAX_FILE_SIZE) {
         setImagesInput([]); // Empty the images array upon submit
-        return alert("File size is too large");
+        return alert(`File size exceeds ${config.MAX_FILE_SIZE / 1000000}MB`);
       }
     }
 
@@ -73,11 +79,18 @@ function PostForm() {
             };
             post.images.push(image);
           });
-          setPosts([post as FullPost, ...posts]);
+          // Adds the new post to the posts map in the store(Opimistic UI)
+          const updatedMap = new Map<string, FullPost>([
+            [post.id, post as FullPost],
+            ...posts.entries(),
+          ]);
+          setPosts(updatedMap);
+          // ! This is a hacky way to get the optimistic ui to work i guess
           setPostsOptimisticUpdateApplied(true);
           setImagesInput([]); // Empty the images array upon submit
-          reset(); // TODO: FIX THIS CUZ ITS BAD
+          reset(); // TODO: FIX THIS CUZ ITS BAD PRACTICE
           if (imagesInput.length > 0) void uploadImage(post.id);
+          if (onSuccess) onSuccess(); // runs whatever callback is passed in from the parent component
         },
         onError: (error) => {
           // TODO: show error to user
@@ -149,8 +162,7 @@ function PostForm() {
               rows={8}
               className="block w-full border-0 bg-white p-2 text-sm text-gray-800 focus:ring-0 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400"
               placeholder="Write an article..."
-              required
-              {...register("body", { required: true })}
+              {...register("body")}
             ></textarea>
             <div className="flex justify-between">
               <div className="buttons">

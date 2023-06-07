@@ -24,6 +24,42 @@ export const postRouter = createTRPCRouter({
       await embedPostImageUrls([post]);
       return post;
     }),
+  getOneWithAll: publicProcedure
+    .input(z.object({ id: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const post = await ctx.prisma.post.findUniqueOrThrow({
+        where: { id: input.id },
+        // joins the tables
+        include: {
+          author: true,
+          images: true,
+          likedBy: true,
+          dislikedBy: true,
+        },
+      });
+
+      await embedPostImageUrls([post]);
+      return post;
+    }),
+  // ! NOTE: since we split the comment section into its own component, we fetch the comments separately
+  getOneWithComments: publicProcedure
+    .input(z.object({ id: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const post = await ctx.prisma.post.findUniqueOrThrow({
+        where: { id: input.id },
+        // joins the tables
+        include: {
+          author: true,
+          images: true,
+          likedBy: true,
+          dislikedBy: true,
+          comments: true,
+        },
+      });
+
+      await embedPostImageUrls([post]);
+      return post;
+    }),
   getAllFromUser: publicProcedure
     .input(
       z.object({
@@ -79,7 +115,12 @@ export const postRouter = createTRPCRouter({
         orderBy: {
           createdAt: "desc",
         },
-        include: { author: true, images: true },
+        include: {
+          author: true,
+          images: true,
+          likedBy: true,
+          dislikedBy: true,
+        },
       });
 
       // ! NOTE: presigned urls are only valid for X minutes, so we need to get the urls
@@ -98,7 +139,7 @@ export const postRouter = createTRPCRouter({
     .input(
       z.object({
         title: z.string(),
-        body: z.string(),
+        body: z.string().optional(),
       })
     )
     .mutation(({ ctx, input }) => {
@@ -108,7 +149,12 @@ export const postRouter = createTRPCRouter({
           title: input.title,
           body: input.body,
         },
-        include: { author: true, images: true },
+        include: {
+          author: true,
+          images: true,
+          likedBy: true,
+          dislikedBy: true,
+        },
       });
     }),
   updateOne: protectedProcedure.mutation(() => {

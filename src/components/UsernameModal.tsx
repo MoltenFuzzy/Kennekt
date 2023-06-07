@@ -1,9 +1,9 @@
 import React from "react";
 import { useForm } from "react-hook-form";
 import { api } from "../utils/api";
-import { reloadSession } from "../utils/helpers";
+import { useRouter } from "next/router";
 
-interface ModalProps {
+interface UsernameModalProps {
   title: string;
   // children?: React.ReactNode;
 }
@@ -12,12 +12,14 @@ type UsernameForm = {
   username: string;
 };
 
-const Modal: React.FC<ModalProps> = ({ title }) => {
+const UsernameModal: React.FC<UsernameModalProps> = ({ title }) => {
+  const router = useRouter();
   const utils = api.useContext();
   const setUsername = api.user.setUsername.useMutation({
     onSuccess() {
       void utils.user.invalidate();
-      reloadSession();
+      void router.replace(router.asPath);
+      // reloadSession();
     },
   });
   // const user = api.user.getUser.useQuery({});
@@ -29,6 +31,7 @@ const Modal: React.FC<ModalProps> = ({ title }) => {
   } = useForm<UsernameForm>();
 
   const handleUserKeyPress = (e: KeyboardEvent) => {
+    console.log(e.key);
     if (e.key === "Enter" && !e.shiftKey) {
       void handleSubmit(onSubmit)(); // this won't be triggered
     }
@@ -82,9 +85,9 @@ const Modal: React.FC<ModalProps> = ({ title }) => {
                     required: true,
                     pattern: {
                       value:
-                        /^(?=.{8,20}$)(?![_.])(?!.*[_.]{2})[a-zA-Z0-9._]+(?<![_.])$/,
+                        /^(?=.{3,20}$)(?![_.])(?!.*[_.]{2})[a-zA-Z0-9._]+(?<![_.])$/,
                       message:
-                        "Username must be between 8 and 20 characters and can only contain letters, numbers, underscores and periods.",
+                        "Username must be between 3 and 20 characters and can only contain letters, numbers, underscores and periods.",
                     },
                   })}
                 />
@@ -137,4 +140,4 @@ const Modal: React.FC<ModalProps> = ({ title }) => {
   );
 };
 
-export default Modal;
+export default UsernameModal;
