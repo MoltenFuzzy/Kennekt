@@ -1,9 +1,6 @@
 import React from "react";
-import UsernameModal from "../../components/UsernameModal";
-import NavBar from "../../components/NavBar";
 import Post from "../../components/Post";
 import Sidebar from "../../components/Sidebar";
-import Comment from "../../components/Comment";
 import { useSession } from "next-auth/react";
 import type {
   GetServerSidePropsContext,
@@ -19,7 +16,6 @@ import { createTRPCContext } from "../../server/api/trpc";
 import { authOptions } from "../api/auth/[...nextauth]";
 import superjson from "superjson";
 import { api } from "../../utils/api";
-import CommentForm from "../../components/CommentForm";
 import { TbSquareRoundedArrowLeftFilled } from "react-icons/tb";
 import { useRouter } from "next/router";
 import CommentSection from "../../components/CommentSection";
@@ -107,10 +103,6 @@ export default function PostPage(
               </button>
             </div>
             <Post postData={postData} session={sessionData} />
-            {/* <CommentForm postId={postData.id} /> */}
-            {/* {postComments?.map((data) => (
-              <Comment key={data.id} commentData={data} />
-            ))} */}
             <CommentSection postId={postData.id} />
           </div>
         </div>
