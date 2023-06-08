@@ -7,7 +7,7 @@ import { type NextPage } from "next";
 import Head from "next/head";
 import { unstable_getServerSession } from "next-auth";
 import { authOptions } from "./api/auth/[...nextauth]";
-import PostCycler from "../components/PostCycler";
+import Image from "next/image";
 
 const Landing: NextPage = () => {
   return (
@@ -19,18 +19,11 @@ const Landing: NextPage = () => {
       </Head>
       <main>
         <div className="flex min-h-screen flex-col items-center py-16 text-white">
-          <PostCycler />
           <div className="mx-auto mt-8 flex max-w-6xl flex-col items-center justify-center px-4 sm:px-6 lg:px-8">
-            <h1 className="mb-8 text-center text-5xl font-bold">
-              Kennekt with new people
-            </h1>
-            <p className="mb-8 text-2xl">
-              This is a simple landing page template built with Tailwind CSS and
-              React.
-            </p>
-            <a className="inline-block rounded bg-blue-500 py-4 px-8 font-bold text-white hover:bg-blue-700">
+            <p className="mb-8 text-center text-2xl">Welcome to Kennekt </p>
+            {/* <a className="inline-block rounded bg-blue-500 py-4 px-8 font-bold text-white hover:bg-blue-700">
               Get Started
-            </a>
+            </a> */}
           </div>
         </div>
       </main>

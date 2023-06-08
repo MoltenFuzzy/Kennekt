@@ -25,6 +25,10 @@ const config = {
       },
       {
         protocol: "https",
+        hostname: "media.discordapp.net",
+      },
+      {
+        protocol: "https",
         hostname: "kennekt-bucket.s3.us-west-1.amazonaws.com",
       },
     ],

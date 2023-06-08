@@ -17,7 +17,7 @@ function NavBar({ user }: NavBarProps) {
 
   if (!sessionData) {
     return (
-      <header className="sticky top-0 z-10 flex h-14 items-center justify-between bg-zinc-800 drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]">
+      <header className="flex h-14 items-center justify-around">
         <Link href="/">
           <Image
             className="ml-5"
@@ -27,6 +27,9 @@ function NavBar({ user }: NavBarProps) {
             height={150}
           />
         </Link>
+        <div></div>
+        <div></div>
+        <div></div>
         <div className="mr-5 hidden items-center justify-between gap-4 sm:flex">
           <Link href="/login">
             <button
