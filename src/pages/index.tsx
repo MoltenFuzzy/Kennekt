@@ -7,11 +7,15 @@ import { type NextPage } from "next";
 import Head from "next/head";
 import { unstable_getServerSession } from "next-auth";
 import { authOptions } from "./api/auth/[...nextauth]";
-import Image from "next/image";
+import NavBar from "../components/NavBar";
+import { useSession } from "next-auth/react";
 
 const Landing: NextPage = () => {
+  const { data: session } = useSession();
+
   return (
     <>
+      <NavBar user={session?.user} />
       <Head>
         <title>Kennekt</title>
         <meta name="description" content="Kennekt with comrades" />

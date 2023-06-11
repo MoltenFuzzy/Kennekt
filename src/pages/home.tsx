@@ -17,6 +17,7 @@ import superjson from "superjson";
 import useHomePageStore from "../stores/home-page";
 import Sidebar from "../components/Sidebar";
 import Post from "../components/Post";
+import NavBar from "../components/NavBar";
 
 type FullPost = RouterOutputs["post"]["getOneWithAll"];
 
@@ -130,6 +131,7 @@ export default function Home() {
 
   return (
     <>
+      <NavBar user={sessionData?.user} />
       <div className="grid grid-cols-1 lg:grid-cols-8 xl:grid-cols-12">
         <div className="hidden xl:col-span-3 xl:block"></div>
         <div className="lg:col-span-6 xl:col-span-6">

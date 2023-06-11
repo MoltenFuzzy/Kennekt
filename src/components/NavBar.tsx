@@ -4,7 +4,6 @@ import defaultPicture from "../../images/user.png";
 import Link from "next/link";
 import type { Session } from "next-auth";
 import HamburgerMenu from "./Hamburger";
-import { useSession } from "next-auth/react";
 import UserSearchDropdown from "./SearchBarDropDown";
 import PostFormModal from "./PostFormModal";
 
@@ -13,9 +12,7 @@ export interface NavBarProps {
 }
 
 function NavBar({ user }: NavBarProps) {
-  const { data: sessionData } = useSession();
-
-  if (!sessionData) {
+  if (!user) {
     return (
       <header className="flex h-14 items-center justify-around">
         <Link href="/">
@@ -64,7 +61,7 @@ function NavBar({ user }: NavBarProps) {
         <UserSearchDropdown userList={["test", "test2"]} />
         <div className="hidden basis-1/4 items-center justify-center gap-4 sm:flex">
           <PostFormModal />
-          <Link href={`/user/${sessionData?.user?.username as string}`}>
+          <Link href={`/user/${user.username}`}>
             <Image
               alt="profile"
               src={user?.image || defaultPicture.src}

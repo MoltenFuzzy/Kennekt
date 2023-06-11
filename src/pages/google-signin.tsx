@@ -1,4 +1,4 @@
-import type { GetServerSidePropsContext, NextPage } from "next";
+import type { NextPage } from "next";
 import { signIn, useSession } from "next-auth/react";
 import { useEffect } from "react";
 
@@ -10,7 +10,9 @@ const SignInPage: NextPage = () => {
     if (session) window.close();
   }, [session, status]);
 
-  return <div className="absolute left-0 top-0 h-screen w-screen"></div>;
+  return (
+    <div className="absolute top-0 left-0 h-screen w-screen bg-white dark:bg-zinc-900"></div>
+  );
 };
 
 export default SignInPage;

@@ -19,6 +19,7 @@ import { api } from "../../utils/api";
 import { TbSquareRoundedArrowLeftFilled } from "react-icons/tb";
 import { useRouter } from "next/router";
 import CommentSection from "../../components/CommentSection";
+import NavBar from "../../components/NavBar";
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   const session = await unstable_getServerSession(
@@ -73,11 +74,6 @@ export default function PostPage(
     error,
   } = api.post.getOne.useQuery({ id: postId }, { enabled: true });
 
-  // const { data: postComments } = api.comment.getAllFromPost.useQuery(
-  //   { postId },
-  //   { enabled: true }
-  // );
-
   // TODO: Add better error handling
   if (isError || !postData) {
     return (
@@ -87,6 +83,7 @@ export default function PostPage(
 
   return (
     <>
+      <NavBar user={sessionData?.user} />
       <div className="grid grid-cols-1 lg:grid-cols-8 xl:grid-cols-12">
         <div className="hidden xl:col-span-3 xl:block"></div>
         <div className="lg:col-span-6 xl:col-span-6">

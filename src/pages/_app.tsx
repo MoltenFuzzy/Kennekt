@@ -14,7 +14,6 @@ const MyApp: AppType<{ session: Session | null }> = ({
 }) => {
   return (
     <SessionProvider session={session}>
-      <NavBar user={session?.user} />
       {session && session.user?.username === null ? (
         <UsernameModal title={"Pick a Username"} />
       ) : null}
