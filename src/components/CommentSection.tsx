@@ -1,13 +1,15 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
-import type { RefObject } from "react";
+import type { FC, RefObject } from "react";
 import React, { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form"; // TODO: add form validation
 import { api } from "../utils/api";
-import type { Comment } from "../types/types";
-import { BiCommentAdd } from "react-icons/bi";
+import { Comment } from "../types/types";
+import { BiSolidCommentAdd } from "react-icons/bi";
 import Link from "next/link";
 import Image from "next/image";
 import defaultPicture from "../../images/user.png";
+import { HiDotsHorizontal } from "react-icons/hi";
+import { AiFillHeart, AiOutlineHeart } from "react-icons/ai";
 
 interface CommentSectionProps {
   postId: string;
@@ -16,6 +18,64 @@ interface CommentSectionProps {
 interface CommentFormProps {
   forwardedRef: RefObject<HTMLTextAreaElement>;
 }
+
+interface CommentProps {
+  comment: Comment;
+  toggleReplyForm: (id: string) => void;
+}
+
+const Comment: FC<CommentProps> = ({ comment, toggleReplyForm }) => {
+  const [isLiked, setIsLiked] = useState(false);
+
+  return (
+    <div className="border-l-2 border-teal-500 p-3">
+      <Link href={`/user/${comment.author?.username ?? ""}`}>
+        <div className="flex items-center gap-x-3">
+          <Image
+            alt="profile"
+            className="rounded-md"
+            src={comment.author?.image || defaultPicture.src}
+            height={30}
+            width={30}
+          />
+          <span>{comment.author?.username}</span>
+        </div>
+      </Link>
+
+      <p>{comment.content}</p>
+      <div className="flex items-center gap-x-2">
+        <button onClick={() => setIsLiked(!isLiked)}>
+          {isLiked ? (
+            <AiFillHeart
+              color="#82EEFD"
+              strokeWidth={70}
+              stroke="black"
+              size={25}
+              className={`animate__animated ${
+                isLiked ? "animate__flash animate__faster" : ""
+              }`}
+            />
+          ) : (
+            <AiOutlineHeart
+              size={25}
+              className={`${
+                isLiked
+                  ? ""
+                  : "animate__animated animate__flash animate__faster"
+              }`}
+            />
+          )}
+        </button>
+        <button onClick={() => toggleReplyForm(comment.id)}>
+          <BiSolidCommentAdd color="#14B8A6" size={25} />
+        </button>
+        <button>
+          <HiDotsHorizontal size={20} color="white" />
+        </button>
+      </div>
+    </div>
+  );
+};
 
 const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
   const [comments, setComments] = useState<Comment[]>([]);
@@ -93,24 +153,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
   const renderReplies = (replies: Comment[]) => {
     return replies?.map((reply) => (
       <div key={reply.id} className="ml-4">
-        <div className="border-l-2 border-teal-500 p-3">
-          <Link href={`/user/${reply.author.username ?? ""}`}>
-            <div className="flex items-center gap-x-3">
-              <Image
-                alt="profile"
-                className="rounded-md"
-                src={reply.author?.image || defaultPicture.src}
-                height={30}
-                width={30}
-              />
-              <span>{reply.author?.username}</span>
-            </div>
-          </Link>
-          <p>{reply.content}</p>
-          <button onClick={() => toggleReplyForm(reply.id)}>
-            <BiCommentAdd color="#14B8A6" size={25} />
-          </button>
-        </div>
+        <Comment toggleReplyForm={toggleReplyForm} comment={reply} />
         {formOpen[reply.id] && (
           <ReplyForm parentId={reply.id} onAddReply={handleAddReply} />
         )}
@@ -222,24 +265,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
           key={comment.id}
           className="relative h-fit flex-col overflow-hidden rounded border-[#2d3748] bg-zinc-800 text-white shadow-md"
         >
-          <div className="border-l-2 border-teal-500 p-3">
-            <Link href={`/user/${comment.author.username ?? ""}`}>
-              <div className="flex items-center gap-x-3">
-                <Image
-                  alt="profile"
-                  className="rounded-md"
-                  src={comment.author?.image || defaultPicture.src}
-                  height={30}
-                  width={30}
-                />
-                <span>{comment.author?.username}</span>
-              </div>
-            </Link>
-            <p>{comment.content}</p>
-            <button onClick={() => toggleReplyForm(comment.id)}>
-              <BiCommentAdd color="#14B8A6" size={25} />
-            </button>
-          </div>
+          <Comment toggleReplyForm={toggleReplyForm} comment={comment} />
           {formOpen[comment.id] && (
             <ReplyForm parentId={comment.id} onAddReply={handleAddReply} />
           )}

@@ -13,6 +13,8 @@ import { unstable_getServerSession } from "next-auth";
 import { authOptions } from "./api/auth/[...nextauth]";
 import { useEffect } from "react";
 import { useRouter } from "next/router";
+import NavBar from "../components/NavBar";
+import { useSession } from "next-auth/react";
 
 type UserRegisterForm = {
   firstName: string;
@@ -25,6 +27,7 @@ type UserRegisterForm = {
 };
 
 const Register: NextPage = () => {
+  const { data: sessionData } = useSession();
   const router = useRouter();
 
   const {
@@ -88,7 +91,8 @@ const Register: NextPage = () => {
 
   return (
     <div className="min-h-screen bg-[radial-gradient(ellipse_at_bottom_right,_var(--tw-gradient-stops))] from-slate-900 via-slate-800 to-zinc-900">
-      <div className="flex justify-center">
+      <NavBar user={sessionData?.user} />
+      {/* <div className="flex justify-center">
         <Link href="/">
           <button type="button" title="back">
             <Image
@@ -100,8 +104,8 @@ const Register: NextPage = () => {
             ></Image>
           </button>
         </Link>
-      </div>
-      <div className="mt-10 flex items-center justify-center text-white">
+      </div> */}
+      <div className="mt-20 flex items-center justify-center text-white">
         <form
           className="w-80 rounded-2xl bg-gray-900 p-5 lg:w-96"
           // eslint-disable-next-line @typescript-eslint/no-misused-promises

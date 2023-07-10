@@ -4,7 +4,9 @@ import type {
   NextApiResponse,
 } from "next";
 import { type NextPage } from "next";
+import Link from "next/link";
 import Head from "next/head";
+import Image from "next/image";
 import { unstable_getServerSession } from "next-auth";
 import { authOptions } from "./api/auth/[...nextauth]";
 import NavBar from "../components/NavBar";
@@ -21,15 +23,40 @@ const Landing: NextPage = () => {
         <meta name="description" content="Kennekt with comrades" />
         <link rel="icon" href={"/logo.png"} />
       </Head>
-      <main>
-        <div className="flex min-h-screen flex-col items-center py-16 text-white">
-          <div className="mx-auto mt-8 flex max-w-6xl flex-col items-center justify-center px-4 sm:px-6 lg:px-8">
-            <p className="mb-8 text-center text-2xl">Welcome to Kennekt </p>
-            {/* <a className="inline-block rounded bg-blue-500 py-4 px-8 font-bold text-white hover:bg-blue-700">
+      <main className="flex min-h-screen flex-col items-center gap-20 font-mono text-white">
+        <section className="mt-44 flex h-72 flex-col items-center justify-center gap-y-4">
+          <h1 className="text-center text-3xl">Make new friends</h1>
+          <h1 className="text-center text-3xl">Share your thoughts</h1>
+          <h1 className="text-center text-7xl font-medium">
+            <span className="font-bold text-blue-500">Kennekt</span> with people
+          </h1>
+          <Link href="/login">
+            <button className="animate__animated mt-5 animate-pulse rounded-3xl bg-emerald-700 px-5 py-3 text-xl hover:bg-emerald-500">
               Get Started
-            </a> */}
+            </button>
+          </Link>
+        </section>
+        <section className="grid w-full grid-cols-2 place-items-center bg-slate-900 p-28">
+          <p className="w-[500px] text-center text-3xl">
+            Kennekt is a platform for connections at the deepest level.
+          </p>
+          <Image
+            className="justify-self-end border-4 border-zinc-700"
+            alt="app preview"
+            src="https://cdn.discordapp.com/attachments/941208408672067624/1128092285788246026/image.png"
+            width={800}
+            height={800}
+          />
+        </section>
+        <footer className="min-w-full  p-4 text-white">
+          <div className="container mx-auto">
+            <div className="flex items-center justify-center">
+              <p className="text-sm">
+                &copy; 2023 Kennekt by MoltenFuzzy LLC. All rights reserved.
+              </p>
+            </div>
           </div>
-        </div>
+        </footer>
       </main>
     </>
   );

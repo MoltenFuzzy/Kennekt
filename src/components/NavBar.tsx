@@ -31,7 +31,7 @@ function NavBar({ user }: NavBarProps) {
           <Link href="/login">
             <button
               type="button"
-              className="transform rounded-md bg-teal-600 px-4 py-2 text-sm font-medium text-white transition duration-300 ease-in-out hover:-translate-y-0.5 hover:bg-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-400 focus:ring-offset-2"
+              className="text-md transform rounded-md px-4 py-2 font-medium text-white transition duration-300 ease-in-out hover:-translate-y-0.5 hover:bg-teal-600    focus:outline-none focus:ring-2 focus:ring-teal-400 focus:ring-offset-2"
             >
               Login
             </button>
@@ -39,7 +39,7 @@ function NavBar({ user }: NavBarProps) {
           <Link href="/register">
             <button
               type="button"
-              className="transform rounded-md bg-teal-600 px-4 py-2 text-sm font-medium text-white transition duration-300 ease-in-out hover:-translate-y-0.5 hover:bg-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-400 focus:ring-offset-2"
+              className="text-md transform rounded-md px-4 py-2 font-medium text-white transition duration-300 ease-in-out hover:-translate-y-0.5 hover:bg-teal-600  focus:outline-none focus:ring-2 focus:ring-teal-400 focus:ring-offset-2"
             >
               Register
             </button>

@@ -55,7 +55,7 @@ const Login: NextPage = () => {
   return (
     <div className="min-h-screen bg-[radial-gradient(ellipse_at_bottom_right,_var(--tw-gradient-stops))] from-slate-900 via-slate-800 to-zinc-900">
       <NavBar user={sessionData?.user} />
-      <div className="flex justify-center">
+      {/* <div className="flex justify-center">
         <Link href="/">
           <button type="button" title="back">
             <Image
@@ -67,8 +67,8 @@ const Login: NextPage = () => {
             ></Image>
           </button>
         </Link>
-      </div>
-      <div className="mt-10 flex items-center justify-center text-white">
+      </div> */}
+      <div className="mt-20 flex items-center justify-center text-white">
         <div className="w-80 rounded-2xl bg-gray-900 p-5 lg:w-96">
           <form
             // eslint-disable-next-line @typescript-eslint/no-misused-promises

@@ -1,5 +1,6 @@
 import { useRef, useEffect, useState } from "react";
 import { HiDotsHorizontal } from "react-icons/hi";
+import "animate.css";
 
 interface DropdownProps {
   children: React.ReactNode;
@@ -32,7 +33,7 @@ const Dropdown = ({ children }: DropdownProps) => {
       <div className="relative inline-flex w-full align-middle">
         <button
           type="button"
-          className="h-fit"
+          className="h-fit rounded-md p-2 hover:bg-[#343436]"
           onClick={(e) => {
             e.stopPropagation();
             setIsOpen(!isOpen);
@@ -43,7 +44,7 @@ const Dropdown = ({ children }: DropdownProps) => {
         <div
           className={`${
             isOpen ? "flex flex-col" : "hidden"
-          } absolute top-6 right-0 z-10 items-center justify-center rounded-md bg-[#424245] p-2`}
+          } animate__animated animate__fadeIn animate__faster absolute top-9 z-10 items-center justify-center rounded-md bg-[#424245] `}
         >
           {children}
         </div>
@@ -61,7 +62,7 @@ const Item = ({ children, onClick }: ItemProps) => {
   return (
     <button
       type="button"
-      className="bg- w-full bg-black p-2 text-center hover:bg-blue-900"
+      className=" w-full rounded p-2 text-center text-sm hover:border hover:border-zinc-600 hover:bg-[#343436] hover:shadow-md"
       onClick={onClick}
     >
       {children}
