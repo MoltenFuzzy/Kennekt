@@ -20,8 +20,9 @@ const RatioNextImage = ({ src, alt }: Props) => {
     const handleImageLoad = () => {
       if (imageRef.current) {
         const { naturalHeight, naturalWidth } = imageRef.current;
+
+        // if the height is greater than the width by 100px, then it's a vertical image
         const isVert = naturalHeight - naturalWidth > 100;
-        console.log("isVert", isVert, naturalHeight, naturalWidth);
         if (isVert && naturalHeight > 600) {
           setDefaultHeight(300);
           setDefaultWidth(300);
