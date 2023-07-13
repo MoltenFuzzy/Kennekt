@@ -1,6 +1,5 @@
 import React from "react";
 import type { Image as ImageType } from "@prisma/client";
-import Image from "next/image";
 import { AiOutlineLeft } from "react-icons/ai";
 import { AiOutlineRight } from "react-icons/ai";
 import { Swiper, SwiperSlide, useSwiper } from "swiper/react";
