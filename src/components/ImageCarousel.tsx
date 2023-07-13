@@ -5,6 +5,7 @@ import { AiOutlineLeft } from "react-icons/ai";
 import { AiOutlineRight } from "react-icons/ai";
 import { Swiper, SwiperSlide, useSwiper } from "swiper/react";
 import "swiper/css";
+import RatioNextImage from "./RatioNextImage";
 
 interface SwipperButtonProps {
   children: React.ReactNode;
@@ -58,15 +59,10 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({ images }) => {
 
       {/* Embed image sizes for a more consistant aspect ratio */}
       {images.map((image, index) => (
-        <SwiperSlide key={image.id} className="flex h-auto w-auto">
-          <Image
+        <SwiperSlide key={image.id}>
+          <RatioNextImage
             src={images[index]?.url || ""}
             alt={images[index]?.filename || ""}
-            width="0"
-            height="0"
-            sizes="256px"
-            className="h-[60%] w-[60%]"
-            unoptimized
           />
         </SwiperSlide>
       ))}

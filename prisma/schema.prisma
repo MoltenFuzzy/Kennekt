@@ -119,7 +119,7 @@ model Image {
 // TODO: https://stackoverflow.com/questions/70095411/i-want-to-use-prisma-to-store-nested-comments-like-on-reddit-how-can-i-retrie
 model Comment {
     id              String    @id @default(cuid())
-    content         String    @db.VarChar(255)
+    content         String    @db.Text
     published       Boolean   @default(false)
     authorId        String
     author          User      @relation(fields: [authorId], references: [id])
