@@ -56,6 +56,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
   // await ssg.post.byId.prefetch({ id });
   // await ssg.post.getAll.prefetch();
   await ssg.post.infinitePosts.fetchInfinite({ limit: 5 });
+  await ssg.user.getFriends.prefetch();
 
   return {
     props: { trpcState: ssg.dehydrate(), session },
@@ -67,6 +68,10 @@ export default function Home() {
   // const { data: allPostData } = api.post.getAll.useQuery(undefined, {
   //   enabled: true,
   // });
+  const { data: friends } = api.user.getFriends.useQuery(undefined, {
+    enabled: true,
+  });
+
   const { data: postsData, fetchNextPage } =
     api.post.infinitePosts.useInfiniteQuery(
       {
@@ -150,6 +155,7 @@ export default function Home() {
           <Sidebar
             className="fixed top-0 right-0 hidden h-screen flex-col bg-[#202023] text-white lg:flex lg:w-64"
             session={sessionData}
+            friends={friends}
           />
         </div>
       </div>

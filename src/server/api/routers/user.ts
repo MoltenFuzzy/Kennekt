@@ -34,6 +34,7 @@ export const userRouter = createTRPCRouter({
           id: true,
           firstName: true,
           lastName: true,
+          name: true,
           username: true,
           email: true,
           image: true,
@@ -127,6 +128,11 @@ export const userRouter = createTRPCRouter({
               id: input.id, // id of the user to follow
             },
           },
+          followings: {
+            connect: {
+              id: input.id,
+            },
+          },
         },
       });
     }),
@@ -150,7 +156,6 @@ export const userRouter = createTRPCRouter({
           },
         },
       });
-      console.log(test);
 
       if (test) {
         // if the current session user is following the user
@@ -163,4 +168,30 @@ export const userRouter = createTRPCRouter({
 
       return false;
     }),
+  // gets all users that follow the current session user and the current session user follows
+  getFriends: protectedProcedure.query(async ({ ctx }) => {
+    const followersAndFollowings = await ctx.prisma.user.findUnique({
+      where: { id: ctx.session.user.id },
+      select: {
+        followers: true,
+        followings: true,
+      },
+    });
+
+    const followers = followersAndFollowings?.followers;
+    const followings = followersAndFollowings?.followings;
+    const friends: typeof followers = [];
+
+    if (!followers || !followings) return []; // or throw error idk
+
+    for (const follower of followers) {
+      for (const following of followings) {
+        if (follower.id === following.id) {
+          friends.push(follower);
+        }
+      }
+    }
+
+    return friends;
+  }),
 });

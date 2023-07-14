@@ -18,6 +18,7 @@ import superjson from "superjson";
 import Post from "../../components/Post";
 import { useSession } from "next-auth/react";
 import Navbar from "../../components/NavBar";
+import NavBar from "../../components/NavBar";
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   const session = await unstable_getServerSession(
@@ -95,6 +96,7 @@ const Profile: NextPage = () => {
 
   return (
     <>
+      <NavBar user={sessionData?.user} />
       <div className="min-h-screen  bg-[radial-gradient(ellipse_at_bottom_right,_var(--tw-gradient-stops))] from-slate-900 via-slate-800 to-zinc-900 dark:text-white">
         <div className="container mx-auto min-h-screen bg-zinc-900 p-6 md:w-2/3">
           <div className="mb-5 flex flex-col justify-center gap-x-5 sm:flex-row sm:justify-start">
@@ -108,25 +110,41 @@ const Profile: NextPage = () => {
             <div className="flex flex-col justify-center">
               <h1 className="text-4xl font-bold">{user.data?.username}</h1>
               <h2 className="text-center opacity-60">
-                {`${user.data?.firstName || ""} ${user.data?.lastName || ""}`}
+                {/* TODO: if no name use first name and last name  */}(
+                {user.data?.name ?? "null"})
               </h2>
             </div>
           </div>
-          <div className="grid grid-cols-7">
+          <div className="grid grid-cols-7 gap-x-5">
             <div className="col-span-3">
-              {user.data?.id !== sessionData?.user?.id && (
-                <button
-                  type="button"
-                  className="rounded-md bg-zinc-800 px-4 py-2 text-white hover:bg-slate-600"
-                  onClick={() => {
-                    followUser({
-                      id: user.data?.id as string,
-                    });
-                  }}
-                >
-                  {isFollowing ? "Unfollow" : "Follow"}
-                </button>
-              )}
+              <div className="h-96 rounded-xl bg-zinc-800">
+                <div className="flex flex-col p-4">
+                  <div className="mb-4">
+                    <div className="mb-4 font-mono text-2xl font-bold">
+                      About
+                    </div>
+                    <p>
+                      Lorem ipsum dolor, sit amet consectetur adipisicing elit.
+                      Quasi ab, cumque cum nemo neque praesentium aspernatur
+                      commodi dignissimos asperiores facere nisi nobis sit at et
+                      accusantium corrupti doloremque odit harum!
+                    </p>
+                  </div>
+                  {user.data?.id !== sessionData?.user?.id && (
+                    <button
+                      type="button"
+                      className="rounded-md bg-zinc-900 px-4 py-2 text-white hover:bg-black"
+                      onClick={() => {
+                        followUser({
+                          id: user.data?.id as string,
+                        });
+                      }}
+                    >
+                      {isFollowing ? "Unfollow" : "Follow"}
+                    </button>
+                  )}
+                </div>
+              </div>
             </div>
             <div className="col-span-4 flex flex-col gap-y-5">
               {posts.data?.map((post, index) => (

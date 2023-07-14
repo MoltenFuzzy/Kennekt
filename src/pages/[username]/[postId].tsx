@@ -53,6 +53,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
    * Prefetching the `post.byId` query here.
    * `prefetch` does not return the result and never throws - if you need that behavior, use `fetch` instead.
    */
+  await ssg.user.getFriends.prefetch();
   await ssg.post.getOne.prefetch({ id: postId });
   await ssg.comment.getAllFromPost.prefetch({ postId });
 
@@ -64,9 +65,12 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
 export default function PostPage(
   props: InferGetServerSidePropsType<typeof getServerSideProps>
 ) {
+  const router = useRouter();
   const { postId } = props;
   const { data: sessionData } = useSession();
-  const router = useRouter();
+  const { data: friends } = api.user.getFriends.useQuery(undefined, {
+    enabled: true,
+  });
 
   const {
     data: postData,
@@ -107,6 +111,7 @@ export default function PostPage(
           <Sidebar
             className="fixed top-0 right-0 hidden h-screen flex-col bg-[#202023] text-white lg:flex lg:w-64"
             session={sessionData}
+            friends={friends}
           />
         </div>
       </div>
