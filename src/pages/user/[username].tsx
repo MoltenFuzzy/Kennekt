@@ -5,7 +5,8 @@ import type {
   NextApiResponse,
   NextPage,
 } from "next";
-import { RouterOutputs, api } from "../../utils/api";
+import type { RouterOutputs } from "../../utils/api";
+import { api } from "../../utils/api";
 import { useRouter } from "next/router";
 import defaultPicture from "../../../images/user.png";
 import Image from "next/image";
