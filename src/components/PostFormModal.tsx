@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { IoCreate } from "react-icons/io5";
 import PostForm from "./PostForm";
-import { AiFillCloseCircle } from "react-icons/ai";
+import { IoCloseSharp } from "react-icons/io5";
 import "animate.css";
 
 function PostFormModal() {
@@ -25,7 +25,7 @@ function PostFormModal() {
           <div className="animate__animated animate__fadeInDown animate__faster  max-h-[600px] w-[80%] max-w-[800px] rounded-lg bg-white shadow-lg dark:bg-gray-800">
             <div className="mb-2 mt-2 mr-2 flex justify-end">
               <button onClick={() => setIsOpen(false)}>
-                <AiFillCloseCircle color="red" size={25} />
+                <IoCloseSharp color="#8c8c91" size={25} />
               </button>
             </div>
             <div className="px-3">

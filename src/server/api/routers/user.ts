@@ -114,10 +114,18 @@ export const userRouter = createTRPCRouter({
       })
     )
     .mutation(({ ctx, input }) => {
-      // TODO: prevent user from following themselves
+      // TODO: prevent user from following themselves *done*
       // TODO: prevent user from following the same user twice
       // TODO: prevent user from following a user that doesn't exist
       // TODO: unfollow user if already following
+
+      if (input.id === ctx.session.user.id) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "You can't follow yourself",
+        });
+      }
+
       return ctx.prisma.user.update({
         where: {
           id: ctx.session.user.id,
@@ -136,17 +144,17 @@ export const userRouter = createTRPCRouter({
         },
       });
     }),
-  // takes in the id of the user to check if the current session user is following
+  // takes in the username of the user to check if the current session user is following
   isFollowing: protectedProcedure
     .input(
       z.object({
-        id: z.string(),
+        username: z.string(),
       })
     )
     .query(async ({ ctx, input }) => {
       const test = await ctx.prisma.user.findUnique({
         where: {
-          id: input.id,
+          username: input.username,
         },
         select: {
           followers: {

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import Post from "../../components/Post";
 import Sidebar from "../../components/Sidebar";
 import { useSession } from "next-auth/react";
@@ -65,7 +65,6 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
 export default function PostPage(
   props: InferGetServerSidePropsType<typeof getServerSideProps>
 ) {
-  const router = useRouter();
   const { postId } = props;
   const { data: sessionData } = useSession();
   const { data: friends } = api.user.getFriends.useQuery(undefined, {
@@ -93,15 +92,7 @@ export default function PostPage(
         <div className="lg:col-span-6 xl:col-span-6">
           <div className="container mx-auto mt-2 grid grid-cols-1 gap-y-4 p-3 ">
             <div className="flex justify-start">
-              <button className="">
-                <TbSquareRoundedArrowLeftFilled
-                  color="#255bcf"
-                  size={25}
-                  onClick={() => {
-                    router.back();
-                  }}
-                />
-              </button>
+              <PreviousPageButton />
             </div>
             <Post postData={postData} session={sessionData} />
             <CommentSection postId={postData.id} />
@@ -118,3 +109,25 @@ export default function PostPage(
     </>
   );
 }
+
+const PreviousPageButton: React.FC = () => {
+  const [isButtonClicked, setButtonClicked] = useState(false);
+  const router = useRouter();
+
+  const handleClick = () => {
+    if (!isButtonClicked) {
+      setButtonClicked(true);
+      router.back();
+    }
+  };
+
+  return (
+    <button
+      className="hover:cursor-pointer" // simulate effect so user can spam click button but only runs once still
+      disabled={isButtonClicked}
+      onClick={handleClick}
+    >
+      <TbSquareRoundedArrowLeftFilled color="#255bcf" size={25} />
+    </button>
+  );
+};

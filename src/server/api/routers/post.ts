@@ -79,7 +79,12 @@ export const postRouter = createTRPCRouter({
             { author: { username: input.username } },
           ],
         },
-        include: { author: true, images: true },
+        include: {
+          author: true,
+          images: true,
+          likedBy: true,
+          dislikedBy: true,
+        },
       });
       await embedPostImageUrls(posts);
       return posts;
