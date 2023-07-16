@@ -190,13 +190,13 @@ export const userRouter = createTRPCRouter({
     const followings = followersAndFollowings?.followings;
     const friends: typeof followers = [];
 
-    if (!followers || !followings) return []; // or throw error idk
+    if (!followers || !followings) return [];
+
+    const followingSet = new Set(followings.map((following) => following.id));
 
     for (const follower of followers) {
-      for (const following of followings) {
-        if (follower.id === following.id) {
-          friends.push(follower);
-        }
+      if (followingSet.has(follower.id)) {
+        friends.push(follower);
       }
     }
 
